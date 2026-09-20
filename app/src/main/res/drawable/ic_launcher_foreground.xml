@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Shield -->
+    <path
+        android:fillColor="#6D5DD3"
+        android:pathData="M54,22 L78,31 V52 C78,66 68,78 54,84 C40,78 30,66 30,52 V31 Z" />
+    <path
+        android:fillColor="#8F80E8"
+        android:pathData="M54,27 L73.5,34.4 V52 C73.5,63.5 65.5,73.7 54,79 Z" />
+    <!-- Keyhole -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,42 a7,7 0 1,0 0.01,0 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M50.5,52 L57.5,52 L60,66 L48,66 Z" />
+</vector>

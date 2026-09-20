@@ -1,0 +1,27 @@
+# Gradle
+.gradle/
+build/
+/captures/
+.kotlin/
+
+# Local config — NEVER commit
+local.properties
+keystore.properties
+*.jks
+*.keystore
+*.p12
+*.pem
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Test outputs
+app/build/
+/reports/
+*.log
+
+# Emulator / device artefacts
+*.rmvault

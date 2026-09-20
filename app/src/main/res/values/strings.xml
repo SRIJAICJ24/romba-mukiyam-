@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Romba Mukiyam</string>
+    <string name="app_tagline">Your family\'s private vault.</string>
+    <string name="app_tagline_alt">Everything important. Safely together.</string>
+
+    <!-- Generic actions -->
+    <string name="action_back">Back</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_close">Close</string>
+    <string name="action_continue">Continue</string>
+    <string name="action_get_started">Get started</string>
+    <string name="action_finish">Finish</string>
+    <string name="action_skip_for_now">Skip for now</string>
+    <string name="action_understood">I understand</string>
+    <string name="action_lock">Lock vault</string>
+    <string name="action_reveal">Reveal</string>
+    <string name="action_hide">Hide</string>
+    <string name="action_try_again">Try again</string>
+    <string name="every_n_days">Every %1$d days</string>
+
+    <!-- Lock screen -->
+    <string name="lock_subtitle">Your private family vault is locked.</string>
+    <string name="lock_unlock_fingerprint">Unlock with fingerprint</string>
+    <string name="lock_unlock">Unlock</string>
+    <string name="lock_use_passphrase">Use master passphrase</string>
+    <string name="lock_use_fingerprint">Use fingerprint</string>
+    <string name="lock_recovery">Recovery</string>
+    <string name="lock_wait_seconds">Wait %1$d s</string>
+    <string name="lock_bio_invalidated_title">Fingerprint unlock was reset</string>
+    <string name="lock_bio_invalidated_body">Your device\'s fingerprints changed, so fingerprint unlock was switched off for safety. Your vault is untouched. Unlock with your master passphrase, then turn fingerprint unlock on again in Settings.</string>
+    <string name="label_master_passphrase">Master passphrase</string>
+    <string name="label_new_master_passphrase">New master passphrase</string>
+    <string name="label_confirm_passphrase">Confirm passphrase</string>
+    <string name="label_recovery_key">Recovery key</string>
+    <string name="recovery_intro">Enter the recovery key from your Emergency Recovery Kit and choose a new master passphrase.</string>
+    <string name="recovery_action">Recover vault</string>
+    <string name="recovery_key_heading">ROMBA MUKIYAM RECOVERY KEY</string>
+
+    <!-- Biometric prompts -->
+    <string name="bio_prompt_title">Unlock Romba Mukiyam</string>
+    <string name="bio_prompt_subtitle">Confirm your fingerprint to open the vault</string>
+    <string name="bio_enroll_title">Enable fingerprint unlock</string>
+    <string name="bio_enroll_subtitle">Confirm your fingerprint to protect the vault key</string>
+    <string name="bio_confirm_title">Confirm it\'s you</string>
+    <string name="bio_confirm_subtitle">This item is marked High Security</string>
+
+    <!-- Onboarding -->
+    <string name="ob_welcome_title">Welcome to Romba Mukiyam</string>
+    <string name="ob_welcome_body">A calm, private place for your family\'s most important logins, cards and documents.</string>
+    <string name="ob_local_title">Your vault stays on your device</string>
+    <string name="ob_local_point1">Romba Mukiyam does not upload your passwords. There is no account, no cloud and no internet permission.</string>
+    <string name="ob_local_point2">Everything is stored in an encrypted database that only your master passphrase (or your fingerprint) can open.</string>
+    <string name="ob_local_point3">Your master passphrase is never stored in readable form.</string>
+    <string name="ob_local_point4">You decide when to create an encrypted backup file and where to keep it.</string>
+    <string name="ob_local_warning_title">Please remember</string>
+    <string name="ob_local_warning_body">If you lose your master passphrase AND your recovery key, nobody can open the vault — not even us. There is no back door.</string>
+    <string name="ob_pass_title">Create your master passphrase</string>
+    <string name="ob_pass_body">A long sentence you can remember works best, for example three or four unrelated words. You will need it whenever fingerprint unlock is unavailable.</string>
+    <string name="ob_pass_min">At least %1$d characters</string>
+    <string name="ob_confirm_title">Type it once more</string>
+    <string name="ob_confirm_body">This makes sure there is no typing mistake in your master passphrase.</string>
+    <string name="ob_confirm_mismatch">The passphrases do not match.</string>
+    <string name="ob_create_vault">Create my vault</string>
+    <string name="ob_generating_title">Building your vault…</string>
+    <string name="ob_generating_body">Generating keys and preparing encryption for this device. This can take a few seconds.</string>
+    <string name="ob_recovery_title">Your recovery key</string>
+    <string name="ob_recovery_body">If you ever forget the master passphrase, this key is the only other way in. Write it down and keep it somewhere physically safe — for example with important family papers.</string>
+    <string name="ob_recovery_warning_title">Shown only once</string>
+    <string name="ob_recovery_warning_body">Romba Mukiyam cannot show this key again later. You can generate a new one from Settings, but only while you can still unlock the vault.</string>
+    <string name="ob_recovery_ack">I have written down my recovery key and stored it safely.</string>
+    <string name="ob_bio_title">Unlock with your fingerprint</string>
+    <string name="ob_bio_body">For everyday use, your fingerprint opens the vault quickly. Your master passphrase always remains the fallback.</string>
+    <string name="ob_bio_enable">Enable fingerprint unlock</string>
+    <string name="ob_bio_unavailable_title">Fingerprint not available</string>
+    <string name="ob_bio_unavailable_body">This device has no enrolled fingerprint. You can enable fingerprint unlock later from Settings after adding one in your phone settings.</string>
+    <string name="ob_profile_title">Who is this vault for?</string>
+    <string name="ob_profile_body">Create the first family profile. You can add Mom, Dad, siblings and joint accounts later.</string>
+    <string name="label_profile_name">Name (e.g. Dad)</string>
+    <string name="label_relationship">Relationship</string>
+    <string name="label_colour">Colour</string>
+    <string name="ob_backup_title">Backup reminders</string>
+    <string name="ob_backup_body">Backups are encrypted files you save to a USB drive, SD card or computer. How often should Romba Mukiyam remind you?</string>
+    <string name="ob_backup_later">Decide later</string>
+
+    <!-- Relationships -->
+    <string name="rel_dad">Dad</string>
+    <string name="rel_mom">Mom</string>
+    <string name="rel_me">Me</string>
+    <string name="rel_sibling">Sibling</string>
+    <string name="rel_joint">Joint / Family</string>
+    <string name="rel_other">Other</string>
+
+    <!-- Strength -->
+    <string name="strength_very_weak">Very weak</string>
+    <string name="strength_weak">Weak</string>
+    <string name="strength_fair">Fair</string>
+    <string name="strength_strong">Strong</string>
+    <string name="strength_very_strong">Very strong</string>
+    <string name="hint_too_short">Make it longer.</string>
+    <string name="hint_add_words">Add a few more words.</string>
+    <string name="hint_repeated">Avoid repeated characters.</string>
+    <string name="hint_sequence">Avoid sequences like 1234 or abcd.</string>
+    <string name="hint_common_word">Avoid common words and names.</string>
+    <string name="hint_one_charset">Mix letters, numbers or symbols — or use several words.</string>
+    <string name="hint_keyboard">Avoid keyboard patterns like qwerty.</string>
+
+    <!-- Errors (never contain technical details) -->
+    <string name="err_locked">The vault is locked. Please unlock it first.</string>
+    <string name="err_auth_failed">That passphrase is not correct.</string>
+    <string name="err_db_unavailable">Romba Mukiyam could not open the vault right now. Your existing information is safe.</string>
+    <string name="err_db_integrity">The vault database reported a problem. Nothing has been changed. Please create a backup and see Vault Health.</string>
+    <string name="err_storage">Romba Mukiyam could not save this change because the device has insufficient storage. Your existing vault data is safe.</string>
+    <string name="err_backup">The backup could not be completed. Your vault has not been changed.</string>
+    <string name="err_backup_not_rmvault">This file is not a Romba Mukiyam backup.</string>
+    <string name="err_backup_unsupported">This backup format is not supported by this version.</string>
+    <string name="err_backup_newer">This backup was made by a newer version of Romba Mukiyam. Please update the app first.</string>
+    <string name="err_backup_corrupt">This backup file is damaged or incomplete and was rejected. Your current vault is unchanged.</string>
+    <string name="err_backup_auth">The passphrase for this backup is not correct.</string>
+    <string name="err_recovery_wrong">The recovery key is not correct. Check every character and try again.</string>
+    <string name="err_migration">The vault could not be upgraded. Your existing data has been preserved untouched. Please create a backup from Safe Mode.</string>
+    <string name="err_keystore_invalidated">Fingerprint unlock needs to be set up again. Please use your master passphrase.</string>
+    <string name="err_bio_none_enrolled">No fingerprint is enrolled on this device.</string>
+    <string name="err_bio_no_hardware">This device has no fingerprint sensor.</string>
+    <string name="err_bio_not_enabled">Fingerprint unlock is not enabled.</string>
+    <string name="err_bio_unavailable">Fingerprint is not available right now. Use your master passphrase.</string>
+    <string name="err_bio_cancelled">Fingerprint check cancelled.</string>
+    <string name="err_permission">A required permission is not available.</string>
+    <string name="err_validation">Please check the highlighted fields.</string>
+    <string name="err_unknown">Something went wrong. Your existing information remains safe.</string>
+
+    <!-- Misc -->
+    <string name="safe_mode_banner">Safe Mode: only viewing, backup and restore are available.</string>
+    <string name="root_warning_title">Security warning</string>
+    <string name="root_warning_body">This device appears to have reduced platform security (it may be rooted). Romba Mukiyam will still work, but a compromised device can expose secrets while the vault is open.</string>
+</resources>
