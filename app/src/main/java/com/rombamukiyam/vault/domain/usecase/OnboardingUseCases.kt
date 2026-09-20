@@ -4,6 +4,7 @@ import com.rombamukiyam.vault.core.common.DispatcherProvider
 import com.rombamukiyam.vault.core.common.Outcome
 import com.rombamukiyam.vault.core.common.safeOutcome
 import com.rombamukiyam.vault.core.crypto.wipe
+import com.rombamukiyam.vault.core.database.DatabaseFactory
 import com.rombamukiyam.vault.core.security.VaultKeyManager
 import com.rombamukiyam.vault.core.security.VaultSession
 import com.rombamukiyam.vault.domain.model.AvatarType
@@ -28,6 +29,7 @@ class CreateVaultUseCase @Inject constructor(
     private val keys: VaultKeyManager,
     private val session: VaultSession,
     private val events: VaultEventLogger,
+    private val databaseFactory: DatabaseFactory,
     private val dispatchers: DispatcherProvider,
 ) {
     suspend operator fun invoke(passphrase: CharArray): Outcome<String> = withContext(dispatchers.default) {
@@ -35,11 +37,39 @@ class CreateVaultUseCase @Inject constructor(
             val result = passphrase.useAsBytes { keys.createVault(it) }
             try {
                 session.unlock(result.vaultKey)
+            } catch (e: Exception) {
+                // Nothing was ever stored in a database: undo the keyring so onboarding can be retried cleanly.
+                keys.rollbackFailedCreation(databaseExists = databaseFactory.exists())
+                throw e
             } finally {
                 result.vaultKey.wipe()
             }
             events.log(HistoryEventType.VAULT_CREATED, null)
             result.recoveryKeyEncoded
+        }
+    }
+}
+
+/**
+ * Onboarding was interrupted after the vault existed (process death, crash). The original recovery key
+ * can no longer be shown, so a fresh one is generated for the user to record.
+ */
+class ResumeOnboardingUseCase @Inject constructor(
+    private val keys: VaultKeyManager,
+    private val session: VaultSession,
+    private val events: VaultEventLogger,
+    private val dispatchers: DispatcherProvider,
+) {
+    fun shouldResume(): Boolean = keys.vaultExists() && session.isUnlocked
+
+    suspend fun regenerateRecoveryKey(): Outcome<String> = withContext(dispatchers.default) {
+        safeOutcome {
+            val vk = session.vaultKeyCopy()
+            try {
+                keys.regenerateRecoveryKey(vk).also { events.log(HistoryEventType.RECOVERY_KEY_REGENERATED, "onboarding resumed") }
+            } finally {
+                vk.wipe()
+            }
         }
     }
 }

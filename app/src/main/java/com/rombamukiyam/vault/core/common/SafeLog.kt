@@ -14,6 +14,9 @@ import com.rombamukiyam.vault.BuildConfig
 object SafeLog {
     private const val PREFIX = "RM/"
 
+    /** WorkManager internal logging threshold (it logs nothing sensitive, but keep it quiet). */
+    const val WORKMANAGER_MIN_LEVEL = Log.WARN
+
     fun d(tag: String, message: String) {
         if (BuildConfig.DEBUG) Log.d(PREFIX + tag, message)
     }

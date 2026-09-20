@@ -18,6 +18,7 @@ import com.rombamukiyam.vault.core.security.BiometricAuthenticator
 import com.rombamukiyam.vault.core.security.KeyringStore
 import com.rombamukiyam.vault.core.security.KeystoreManager
 import com.rombamukiyam.vault.core.security.RootDetector
+import com.rombamukiyam.vault.core.security.SecureClipboard
 import com.rombamukiyam.vault.core.security.VaultKeyManager
 import com.rombamukiyam.vault.core.security.VaultSession
 import com.rombamukiyam.vault.data.repository.DataStoreSettingsRepository
@@ -89,4 +90,8 @@ object CoreModule {
     ): AutoLockController = AutoLockController(context, session, settings, scope)
 
     @Provides @Singleton fun rootDetector(): RootDetector = RootDetector()
+
+    @Provides @Singleton
+    fun secureClipboard(@ApplicationContext context: Context, @ApplicationScope scope: CoroutineScope): SecureClipboard =
+        SecureClipboard(context, scope)
 }

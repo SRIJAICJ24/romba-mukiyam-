@@ -65,6 +65,12 @@ class VaultKeyManager(
         }
     }
 
+    /** Rollback for [createVault] when the database could not be created. Refuses if a database exists. */
+    fun rollbackFailedCreation(databaseExists: Boolean) {
+        if (databaseExists) return
+        store.deleteAllForFailedCreation()
+    }
+
     // ---------------------------------------------------------------- unlock
 
     /** @return the Vault Key, or null when the passphrase is wrong. */

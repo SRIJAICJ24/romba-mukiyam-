@@ -3,6 +3,7 @@ package com.rombamukiyam.vault.core.security
 import android.content.Context
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
+import androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
@@ -75,4 +76,34 @@ class BiometricAuthenticator(private val context: Context) {
         prompt.authenticate(info, BiometricPrompt.CryptoObject(cipher))
         cont.invokeOnCancellation { prompt.cancelAuthentication() }
     }
+
+    /** Can the user confirm identity at all (biometric or device PIN/pattern)? */
+    fun canConfirmIdentity(): Boolean =
+        BiometricManager.from(context).canAuthenticate(BIOMETRIC_STRONG or DEVICE_CREDENTIAL) == BiometricManager.BIOMETRIC_SUCCESS
+
+    /**
+     * Identity confirmation for High Security items (vault already unlocked; no key involved).
+     * Accepts strong biometrics or the device credential.
+     */
+    suspend fun confirmIdentity(activity: FragmentActivity, title: String, subtitle: String?): Boolean =
+        suspendCancellableCoroutine { cont ->
+            val executor = ContextCompat.getMainExecutor(activity)
+            val prompt = BiometricPrompt(activity, executor, object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    if (cont.isActive) cont.resume(true)
+                }
+
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                    if (cont.isActive) cont.resume(false)
+                }
+            })
+            val info = BiometricPrompt.PromptInfo.Builder()
+                .setTitle(title)
+                .apply { subtitle?.let { setSubtitle(it) } }
+                .setAllowedAuthenticators(BIOMETRIC_STRONG or DEVICE_CREDENTIAL)
+                .setConfirmationRequired(false)
+                .build()
+            prompt.authenticate(info)
+            cont.invokeOnCancellation { prompt.cancelAuthentication() }
+        }
 }

@@ -288,7 +288,7 @@ fun relationshipLabel(r: Relationship): String = stringResource(
 
 @Composable
 fun ColorPicker(selected: Long, onSelect: (Long) -> Unit) {
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+    androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         ProfileColors.forEach { c ->
             val isSelected = c == selected
             Box(

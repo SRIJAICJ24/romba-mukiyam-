@@ -2,6 +2,7 @@ package com.rombamukiyam.vault
 
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
+import com.rombamukiyam.vault.core.common.SafeLog
 import com.rombamukiyam.vault.core.security.AutoLockController
 import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
@@ -19,7 +20,7 @@ class RombaApp : Application(), Configuration.Provider {
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
-            .setMinimumLoggingLevel(android.util.Log.WARN)
+            .setMinimumLoggingLevel(SafeLog.WORKMANAGER_MIN_LEVEL)
             .build()
 
     override fun onCreate() {

@@ -52,6 +52,16 @@ class KeyringStore(private val dir: File) {
         fsyncDirectory()
     }
 
+    /**
+     * Removes every keyring copy. ONLY legal while creating a brand-new vault whose database was never
+     * opened; callers must verify that precondition. Never used on an existing vault.
+     */
+    @Synchronized
+    fun deleteAllForFailedCreation() {
+        listOf(file, tmp, bak).forEach { runCatching { it.delete() } }
+        SafeLog.w(TAG, "keyring removed after failed vault creation")
+    }
+
     private fun readFrom(f: File): Keyring? {
         if (!f.exists()) return null
         return try {

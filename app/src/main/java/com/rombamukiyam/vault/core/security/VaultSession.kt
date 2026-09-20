@@ -59,11 +59,12 @@ class VaultSession(
             val database = try {
                 databaseFactory.open(dbKey)
             } catch (e: Exception) {
+                SafeLog.e(TAG, "database open failed", e)
                 throw VaultException(VaultError.DatabaseUnavailable(e))
             }
             val integrity = integrityChecker.check(database.openHelper.writableDatabase, IntegrityLevel.QUICK, clock.nowMillis())
             if (!integrity.ok && !safeMode) {
-                database.close()
+                databaseFactory.closeAndWipe(database)
                 throw VaultException(VaultError.DatabaseIntegrityFailure())
             }
             vaultKey = vk
@@ -84,7 +85,7 @@ class VaultSession(
     fun lock() {
         if (!isUnlocked && db == null) return
         try {
-            db?.close()
+            db?.let { databaseFactory.closeAndWipe(it) }
         } catch (e: Exception) {
             SafeLog.w(TAG, "database close failed", e)
         }

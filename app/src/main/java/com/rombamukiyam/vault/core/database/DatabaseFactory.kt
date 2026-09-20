@@ -17,7 +17,8 @@ import java.io.File
  *
  *  - The key is the 32-byte database sub-key derived from the Vault Key (HKDF). It is passed to SQLCipher in
  *    raw-key form (x'hex') so SQLCipher does NOT run its own PBKDF2 on it — the entropy is already 256 bits.
- *  - The passphrase buffer is cleared by SQLCipher after keying (clearPassphrase = true).
+ *  - Room opens more than one connection (writer + readers), so the key bytes must stay available to the
+ *    open-helper for the life of the database; they are zeroed by [closeAndWipe] when the vault locks.
  *  - Destructive migration fallbacks are intentionally absent. A failing migration throws and the file is preserved.
  */
 class DatabaseFactory(private val context: Context) {
@@ -28,8 +29,10 @@ class DatabaseFactory(private val context: Context) {
 
     fun open(databaseKey: ByteArray, file: File = databaseFile()): RombaDatabase {
         require(databaseKey.size == 32) { "database key must be 32 bytes" }
+        // SQLCipher opens by absolute path and does not create the parent directory on a fresh install.
+        file.parentFile?.let { if (!it.exists()) it.mkdirs() }
         val rawKey = "x'${databaseKey.toHex()}'".toByteArray(Charsets.US_ASCII)
-        val factory = SupportOpenHelperFactory(rawKey, hook, /* clearPassphrase = */ true)
+        val factory = SupportOpenHelperFactory(rawKey, hook, /* clearPassphrase = */ false)
         val db = Room.databaseBuilder(context, RombaDatabase::class.java, file.absolutePath)
             .openHelperFactory(factory)
             .addMigrations(*MigrationRegistry.ALL)
@@ -37,15 +40,31 @@ class DatabaseFactory(private val context: Context) {
             .addCallback(callback)
             .build()
         // Force the connection open now so a wrong key / corrupt file fails here, not lazily inside a screen.
-        db.openHelper.writableDatabase
-        rawKey.wipe()
+        try {
+            db.openHelper.writableDatabase
+        } catch (e: Exception) {
+            rawKey.wipe()
+            throw e
+        }
+        synchronized(openKeys) { openKeys[db] = rawKey }
         return db
     }
+
+    /** Closes the database and zeroes the key bytes held for its connections. */
+    fun closeAndWipe(db: RombaDatabase) {
+        try {
+            db.close()
+        } finally {
+            synchronized(openKeys) { openKeys.remove(db) }?.wipe()
+        }
+    }
+
+    private val openKeys = java.util.WeakHashMap<RombaDatabase, ByteArray>()
 
     private val hook = object : SQLiteDatabaseHook {
         override fun preKey(connection: SQLiteConnection) {
             // Wipe sensitive memory (keys/page buffers) as SQLCipher frees it.
-            connection.execute("PRAGMA cipher_memory_security = ON;", null, null)
+            connection.executeRaw("PRAGMA cipher_memory_security = ON;", null, null)
         }
 
         override fun postKey(connection: SQLiteConnection) {
@@ -56,7 +75,8 @@ class DatabaseFactory(private val context: Context) {
     private val callback = object : RoomDatabase.Callback() {
         override fun onOpen(db: SupportSQLiteDatabase) {
             db.setForeignKeyConstraintsEnabled(true)
-            db.execSQL("PRAGMA secure_delete = ON;")
+            // PRAGMA assignments return a row, so they must go through query(), not execSQL().
+            db.query("PRAGMA secure_delete = ON;").close()
             SafeLog.d(TAG, "database opened")
         }
     }
