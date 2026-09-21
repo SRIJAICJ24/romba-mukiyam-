@@ -461,4 +461,47 @@
     <string name="alerts_permission_action">Allow notifications</string>
     <string name="alerts_mark_done">Done</string>
     <string name="alerts_snooze">Remind me later</string>
+    <!-- Backup & recovery -->
+    <string name="backup_title">Backup &amp; Recovery</string>
+    <string name="backup_intro">A backup is one encrypted .rmvault file that only your master passphrase can open. Save it to a USB drive, SD card or computer. Nothing is uploaded anywhere.</string>
+    <string name="backup_last">Last backup: %1$s</string>
+    <string name="backup_create">Create encrypted backup</string>
+    <string name="backup_verify">Verify a backup file</string>
+    <string name="backup_restore">Restore from backup</string>
+    <string name="backup_where">Tip: keep two copies in different places (for example one USB drive at home and one with a family member).</string>
+    <string name="backup_history">Backup history</string>
+    <string name="backup_event_created">Backup created and verified</string>
+    <string name="backup_event_restored">Backup restored</string>
+    <string name="backup_items">%1$d items</string>
+    <string name="backup_pass_hint_create">Enter your master passphrase. The backup will be encrypted with it — you will need the same passphrase to restore.</string>
+    <string name="backup_pass_hint_open">Enter the master passphrase that was in use when this backup was created.</string>
+    <string name="backup_working">Working… this can take a few seconds.</string>
+    <string name="backup_verified_title">Backup verified</string>
+    <string name="backup_created_body">The file was written, read back and fully verified. It contains %1$d items.</string>
+    <string name="backup_verified_body">This file is a valid Romba Mukiyam backup with %1$d items and %2$d family profiles, created on %3$s.</string>
+    <string name="backup_failed_title">Backup not completed</string>
+    <string name="verify_failed_title">Backup could not be verified</string>
+    <string name="restore_failed_title">Restore not completed</string>
+    <string name="restore_warning_title">Replace the current vault?</string>
+    <string name="restore_warning_body">Restoring replaces everything in this vault with the contents of the backup. A safety copy of the current vault is kept on this phone first, and if anything goes wrong the current vault stays untouched. Your current master passphrase and fingerprint keep working.</string>
+    <string name="restore_done_title">Restore complete</string>
+    <string name="restore_done_body">%1$d items were restored and verified.</string>
+
+    <string name="recovery_kit_title">Emergency Recovery Kit</string>
+    <string name="recovery_kit_intro_title">A paper plan for the worst day</string>
+    <string name="recovery_kit_intro_body">Print the kit, write down where your backups live, and store it somewhere physically safe. Romba Mukiyam never keeps a readable copy of your recovery key.</string>
+    <string name="recovery_kit_print_blank">Print kit (fill in by hand)</string>
+    <string name="recovery_kit_regen_title">Lost the recovery key?</string>
+    <string name="recovery_kit_regen_body">Generate a new one. It is shown once; the old key stops working immediately.</string>
+    <string name="recovery_kit_regen_action">Generate new recovery key</string>
+    <string name="recovery_kit_old_invalid">The previous recovery key no longer works. Write this one down now.</string>
+    <string name="recovery_kit_include_key">Print the recovery key on the kit (only if the printout goes straight into a safe place)</string>
+    <string name="recovery_kit_print">Print kit</string>
+
+    <string name="settings_change_passphrase">Change master passphrase</string>
+    <string name="change_pass_current">Current master passphrase</string>
+    <string name="change_pass_intro_title">Your vault is not re-encrypted</string>
+    <string name="change_pass_intro_body">Only the key that protects your vault is re-wrapped with the new passphrase. Fingerprint unlock and your recovery key keep working. Existing backups still need the passphrase that was in use when they were made.</string>
+    <string name="change_pass_done_title">Master passphrase changed</string>
+    <string name="change_pass_done_body">Use the new passphrase from now on. Consider creating a fresh backup.</string>
 </resources>

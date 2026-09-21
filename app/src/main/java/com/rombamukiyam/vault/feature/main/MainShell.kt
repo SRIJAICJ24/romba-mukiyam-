@@ -29,6 +29,9 @@ import androidx.navigation.navArgument
 import com.rombamukiyam.vault.R
 import com.rombamukiyam.vault.domain.model.VaultCategory
 import com.rombamukiyam.vault.feature.alerts.AlertsScreen
+import com.rombamukiyam.vault.feature.backup.BackupScreen
+import com.rombamukiyam.vault.feature.backup.ChangePassphraseScreen
+import com.rombamukiyam.vault.feature.backup.RecoveryKitScreen
 import com.rombamukiyam.vault.feature.credential.ChangePasswordScreen
 import com.rombamukiyam.vault.feature.credential.CredentialDetailScreen
 import com.rombamukiyam.vault.feature.credential.PolicyScreen
@@ -58,6 +61,9 @@ object Routes {
     const val ITEM_CHANGE_PASSWORD = "item/{id}/change-password"
     const val ITEM_POLICY = "item/{id}/policy"
     const val HEALTH = "health"
+    const val BACKUP = "settings/backup"
+    const val RECOVERY_KIT = "settings/recovery-kit"
+    const val CHANGE_PASSPHRASE = "settings/change-passphrase"
 
     fun vault(category: VaultCategory? = null, owner: String? = null) = "vault?category=${category?.name ?: ""}&owner=${owner ?: ""}"
     fun item(id: String) = "item/$id"
@@ -111,7 +117,7 @@ fun MainShell(safeMode: Boolean, onLock: () -> Unit) {
                     onOpenItem = { nav.navigate(Routes.item(it)) },
                     onAdd = { nav.navigate(Routes.itemNew()) },
                     onOpenAlerts = { nav.navigateTopLevel(Routes.ALERTS) },
-                    onOpenBackup = { nav.navigateTopLevel(Routes.SETTINGS) },
+                    onOpenBackup = { nav.navigate(Routes.BACKUP) },
                     onOpenHealth = { nav.navigate(Routes.HEALTH) },
                 )
             }
@@ -135,8 +141,20 @@ fun MainShell(safeMode: Boolean, onLock: () -> Unit) {
                     onSearch = { nav.navigate(Routes.SEARCH) },
                 )
             }
-            composable(Routes.ALERTS) { AlertsScreen(onOpenItem = { nav.navigate(Routes.item(it)) }, onOpenBackup = { nav.navigateTopLevel(Routes.SETTINGS) }) }
-            composable(Routes.SETTINGS) { SettingsScreen(safeMode = safeMode, onLock = onLock) }
+            composable(Routes.ALERTS) { AlertsScreen(onOpenItem = { nav.navigate(Routes.item(it)) }, onOpenBackup = { nav.navigate(Routes.BACKUP) }) }
+            composable(Routes.SETTINGS) {
+                SettingsScreen(
+                    safeMode = safeMode,
+                    onLock = onLock,
+                    onOpenBackup = { nav.navigate(Routes.BACKUP) },
+                    onOpenRecoveryKit = { nav.navigate(Routes.RECOVERY_KIT) },
+                    onChangePassphrase = { nav.navigate(Routes.CHANGE_PASSPHRASE) },
+                    onOpenHealth = { nav.navigate(Routes.HEALTH) },
+                )
+            }
+            composable(Routes.BACKUP) { BackupScreen(safeMode = safeMode, onBack = { nav.popBackStack() }) }
+            composable(Routes.RECOVERY_KIT) { RecoveryKitScreen(onBack = { nav.popBackStack() }) }
+            composable(Routes.CHANGE_PASSPHRASE) { ChangePassphraseScreen(onBack = { nav.popBackStack() }) }
             composable(Routes.SEARCH) { SearchScreen(onBack = { nav.popBackStack() }, onOpenItem = { nav.navigate(Routes.item(it)) }) }
             composable(Routes.TRASH) { TrashScreen(safeMode = safeMode, onBack = { nav.popBackStack() }, onOpenItem = { nav.navigate(Routes.item(it)) }) }
             composable(Routes.ITEM, arguments = listOf(navArgument("id") { type = NavType.StringType })) { entry ->

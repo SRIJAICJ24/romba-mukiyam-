@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import com.rombamukiyam.vault.core.backup.BackupManager
 import com.rombamukiyam.vault.core.common.Clock
 import com.rombamukiyam.vault.core.common.DefaultDispatcherProvider
 import com.rombamukiyam.vault.core.common.DispatcherProvider
@@ -90,6 +91,18 @@ object CoreModule {
     ): AutoLockController = AutoLockController(context, session, settings, scope)
 
     @Provides @Singleton fun rootDetector(): RootDetector = RootDetector()
+
+    @Provides @Singleton
+    fun backupManager(
+        @ApplicationContext context: Context,
+        session: VaultSession,
+        keys: VaultKeyManager,
+        kdf: PassphraseKdf,
+        factory: DatabaseFactory,
+        store: KeyringStore,
+        integrity: IntegrityChecker,
+        clock: Clock,
+    ): BackupManager = BackupManager(context, session, keys, kdf, factory, store, integrity, clock)
 
     @Provides @Singleton
     fun secureClipboard(@ApplicationContext context: Context, @ApplicationScope scope: CoroutineScope): SecureClipboard =

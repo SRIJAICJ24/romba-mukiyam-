@@ -98,6 +98,12 @@ class VaultKeyManager(
         }
     }
 
+    /** True when [passphrase] unwraps the Vault Key. The key material is wiped immediately. */
+    fun verifyPassphrase(passphrase: ByteArray): Boolean = unlockWithPassphrase(passphrase)?.also { it.wipe() } != null
+
+    /** KDF parameters currently used for the passphrase slot (already calibrated for this device). */
+    fun currentKdfParams(): KdfParams = keyring().slot(KeySlotType.PASSPHRASE)?.kdf ?: KdfParams.freshDefault()
+
     // ---------------------------------------------------------------- passphrase & recovery management
 
     /** Re-wraps the same Vault Key under a new passphrase with a fresh salt. Atomic keyring replacement. */
