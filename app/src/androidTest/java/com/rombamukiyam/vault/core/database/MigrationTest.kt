@@ -26,6 +26,49 @@ class MigrationTest {
         SupportOpenHelperFactory(rawKey.copyOf()),
     )
 
+    private fun seedV1(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+        db.execSQL(
+            "INSERT INTO family_profiles (id, displayName, relationship, avatarType, avatarColor, createdAt, updatedAt, archived, sortOrder) " +
+                "VALUES ('p1','Dad','DAD','INITIALS',1,1,1,0,0)",
+        )
+        db.execSQL(
+            "INSERT INTO vault_items (id, ownerId, category, title, favorite, highSecurity, createdAt, updatedAt) " +
+                "VALUES ('i1','p1','BANK','SBI',1,1,1,1)",
+        )
+        db.execSQL(
+            "INSERT INTO credential_fields (id, vaultItemId, fieldType, label, encryptedValue, isSecret, isSensitive, displayOrder, createdAt, updatedAt) " +
+                "VALUES ('f1','i1','PASSWORD','Login password', x'00112233', 1, 1, 0, 1, 1)",
+        )
+        db.execSQL("INSERT INTO credential_history (id, vaultItemId, eventType, occurredAt) VALUES ('h1','i1','CREDENTIAL_CREATED',1)")
+        db.execSQL("INSERT INTO tags (id, name, createdAt) VALUES ('t1','family',1)")
+        db.execSQL("INSERT INTO vault_item_tags (vaultItemId, tagId) VALUES ('i1','t1')")
+    }
+
+    private fun androidx.sqlite.db.SupportSQLiteDatabase.count(table: String): Int = query("SELECT COUNT(*) FROM $table").use { it.moveToFirst(); it.getInt(0) }
+
+    @Test
+    fun migrate1To2_preservesAllRowsAndAddsNewTables() {
+        helper.createDatabase(dbName, 1).apply { seedV1(this); close() }
+        val db = helper.runMigrationsAndValidate(dbName, 2, true, MigrationRegistry.MIGRATION_1_2)
+        assertThat(db.count("family_profiles")).isEqualTo(1)
+        assertThat(db.count("vault_items")).isEqualTo(1)
+        assertThat(db.count("credential_fields")).isEqualTo(1)
+        assertThat(db.count("credential_history")).isEqualTo(1)
+        assertThat(db.count("vault_item_tags")).isEqualTo(1)
+        assertThat(db.count("password_history")).isEqualTo(0)
+        assertThat(db.count("password_policies")).isEqualTo(0)
+        // Encrypted blob is byte-identical after migration.
+        db.query("SELECT encryptedValue FROM credential_fields WHERE id='f1'").use { c -> c.moveToFirst(); assertThat(c.getBlob(0)).isEqualTo(byteArrayOf(0x00, 0x11, 0x22, 0x33)) }
+        // New tables are usable and cascade from vault_items.
+        db.execSQL("INSERT INTO password_history (id, vaultItemId, fieldId, digestHex, current, changedAt) VALUES ('ph1','i1','f1','abcd',1,5)")
+        db.execSQL("INSERT INTO password_policies (vaultItemId, requireDigit, updatedAt) VALUES ('i1',1,5)")
+        db.execSQL("PRAGMA foreign_keys = ON")
+        db.execSQL("DELETE FROM vault_items WHERE id='i1'")
+        assertThat(db.count("password_history")).isEqualTo(0)
+        assertThat(db.count("password_policies")).isEqualTo(0)
+        db.close()
+    }
+
     @Test
     fun schema1_createsAndReopensAtCurrentVersion() {
         helper.createDatabase(dbName, 1).apply {

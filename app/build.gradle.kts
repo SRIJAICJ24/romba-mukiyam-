@@ -37,7 +37,7 @@ android {
         vectorDrawables { useSupportLibrary = true }
 
         // Exposed to code for the About screen. Never put secrets here.
-        buildConfigField("int", "DB_SCHEMA_VERSION", "1")
+        buildConfigField("int", "DB_SCHEMA_VERSION", "2")
         buildConfigField("int", "BACKUP_FORMAT_VERSION", "1")
     }
 

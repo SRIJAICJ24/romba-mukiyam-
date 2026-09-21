@@ -21,9 +21,9 @@ import java.io.File
  *    open-helper for the life of the database; they are zeroed by [closeAndWipe] when the vault locks.
  *  - Destructive migration fallbacks are intentionally absent. A failing migration throws and the file is preserved.
  */
-class DatabaseFactory(private val context: Context) {
+open class DatabaseFactory(private val context: Context) {
 
-    fun databaseFile(): File = context.getDatabasePath(RombaDatabase.FILE_NAME)
+    open fun databaseFile(): File = context.getDatabasePath(RombaDatabase.FILE_NAME)
 
     fun exists(): Boolean = databaseFile().exists()
 

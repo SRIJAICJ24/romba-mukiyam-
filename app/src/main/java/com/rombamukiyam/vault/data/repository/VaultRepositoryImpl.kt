@@ -7,13 +7,19 @@ import com.rombamukiyam.vault.core.security.VaultSession
 import com.rombamukiyam.vault.data.dao.VaultItemDao
 import com.rombamukiyam.vault.data.entity.CredentialFieldEntity
 import com.rombamukiyam.vault.data.entity.CredentialHistoryEntity
+import com.rombamukiyam.vault.data.entity.PasswordHistoryEntity
+import com.rombamukiyam.vault.data.entity.PasswordPolicyEntity
 import com.rombamukiyam.vault.data.entity.TagEntity
 import com.rombamukiyam.vault.data.entity.VaultItemEntity
 import com.rombamukiyam.vault.data.entity.VaultItemTagCrossRef
 import com.rombamukiyam.vault.data.mapper.domainOf
 import com.rombamukiyam.vault.data.mapper.toDomain
 import com.rombamukiyam.vault.data.mapper.toSummary
+import com.rombamukiyam.vault.core.crypto.toHex
 import com.rombamukiyam.vault.domain.model.FieldDraft
+import com.rombamukiyam.vault.domain.model.FieldType
+import com.rombamukiyam.vault.domain.model.PasswordDigest
+import com.rombamukiyam.vault.domain.model.PasswordPolicy
 import com.rombamukiyam.vault.domain.model.HistoryEvent
 import com.rombamukiyam.vault.domain.model.HistoryEventType
 import com.rombamukiyam.vault.domain.model.VaultCategory
@@ -89,8 +95,11 @@ class VaultRepositoryImpl(
         val id = draft.id ?: UUID.randomUUID().toString()
         val entity = draft.toEntity(id, createdAt = now, now = now)
         val fields = draft.fields.mapIndexed { i, f -> f.toEntity(id, i, now, now) }
-        dao.insertItemWithFields(entity, fields, event(id, HistoryEventType.CREDENTIAL_CREATED, null, now))
-        writeTags(id, draft.tags, now)
+        session.database().runInTransactionSuspend {
+            dao.insertItemWithFields(entity, fields, event(id, HistoryEventType.CREDENTIAL_CREATED, null, now))
+            writeTags(id, draft.tags, now)
+            recordDigests(id, draft.fields, fields, now)
+        }
         return id
     }
 
@@ -100,8 +109,31 @@ class VaultRepositoryImpl(
         val now = clock.nowMillis()
         val entity = draft.toEntity(id, createdAt = existing.createdAt, now = now).copy(deletedAt = existing.deletedAt)
         val fields = draft.fields.mapIndexed { i, f -> f.toEntity(id, i, existing.createdAt, now) }
-        dao.updateItemWithFields(entity, fields, event(id, HistoryEventType.CREDENTIAL_UPDATED, null, now))
-        writeTags(id, draft.tags, now)
+        session.database().runInTransactionSuspend {
+            dao.updateItemWithFields(entity, fields, event(id, HistoryEventType.CREDENTIAL_UPDATED, null, now))
+            writeTags(id, draft.tags, now)
+            recordDigests(id, draft.fields, fields, now)
+        }
+    }
+
+    /**
+     * Keeps the keyed digest of every password-type field current. Only writes a new history row when the
+     * value actually changed (same digest => nothing to record), so reuse detection stays meaningful.
+     */
+    private suspend fun recordDigests(itemId: String, drafts: List<FieldDraft>, entities: List<CredentialFieldEntity>, now: Long) {
+        val pw = session.database().passwordDao()
+        drafts.zip(entities).forEach { (draft, entity) ->
+            if (draft.type !in PASSWORD_TYPES || draft.value.isBlank()) return@forEach
+            val digest = session.historyDigest(draft.value).toHex()
+            if (pw.countPreviousUses(itemId, entity.id, digest) > 0) {
+                // Same password as before (edit that did not touch it): make sure it is the current row only.
+                pw.retireCurrent(entity.id)
+                pw.insertHistory(PasswordHistoryEntity(UUID.randomUUID().toString(), itemId, entity.id, digest, current = true, changedAt = now))
+                return@forEach
+            }
+            pw.retireCurrent(entity.id)
+            pw.insertHistory(PasswordHistoryEntity(UUID.randomUUID().toString(), itemId, entity.id, digest, current = true, changedAt = now))
+        }
     }
 
     private suspend fun writeTags(itemId: String, tags: List<String>, now: Long) {
@@ -148,12 +180,60 @@ class VaultRepositoryImpl(
         val fields = dao.getFields(itemId)
         val field = fields.firstOrNull { it.id == fieldId } ?: error("field missing")
         val updated = field.copy(encryptedValue = session.encryptField(newPassword, field.id), updatedAt = now)
+        val digest = session.historyDigest(newPassword).toHex()
+        val pw = session.database().passwordDao()
         session.database().runInTransactionSuspend {
             dao.updateField(updated)
             dao.setPasswordLastChanged(itemId, changedAt, now)
             dao.insertHistory(event(itemId, HistoryEventType.PASSWORD_CHANGED, null, now))
+            pw.retireCurrent(fieldId)
+            pw.insertHistory(PasswordHistoryEntity(UUID.randomUUID().toString(), itemId, fieldId, digest, current = true, changedAt = now))
         }
     }
+
+    // ------------------------------------------------------------ password tools
+
+    override fun observeCurrentDigests(): Flow<List<PasswordDigest>> = whenUnlocked(emptyList()) {
+        session.database().passwordDao().observeAllCurrent().map { l -> l.map { PasswordDigest(it.vaultItemId, it.fieldId, it.digestHex, it.changedAt) } }
+    }
+
+    override suspend fun wasUsedBefore(itemId: String, fieldId: String, password: String): Boolean =
+        session.database().passwordDao().countPreviousUses(itemId, fieldId, session.historyDigest(password).toHex()) > 0
+
+    override fun observePolicy(itemId: String): Flow<PasswordPolicy?> = whenUnlocked(null) {
+        session.database().passwordDao().observePolicy(itemId).map { it?.toDomain() }
+    }
+
+    override suspend fun getPolicy(itemId: String): PasswordPolicy? = session.database().passwordDao().getPolicy(itemId)?.toDomain()
+
+    override suspend fun savePolicy(policy: PasswordPolicy) {
+        session.database().passwordDao().upsertPolicy(
+            PasswordPolicyEntity(
+                vaultItemId = policy.itemId, minLength = policy.minLength, maxLength = policy.maxLength,
+                requireUppercase = policy.requireUppercase, requireLowercase = policy.requireLowercase,
+                requireDigit = policy.requireDigit, requireSymbol = policy.requireSymbol,
+                allowedSymbols = policy.allowedSymbols?.ifBlank { null }, forbiddenCharacters = policy.forbiddenCharacters?.ifEmpty { null },
+                notes = policy.notes?.ifBlank { null }, policySource = policy.policySource?.ifBlank { null },
+                lastVerifiedAt = policy.lastVerifiedAt, updatedAt = clock.nowMillis(),
+            ),
+        )
+    }
+
+    override suspend fun deletePolicy(itemId: String) = session.database().passwordDao().deletePolicy(itemId)
+
+    override suspend fun primaryPasswordsForHealth(): List<Triple<String, String, String>> {
+        val active = dao.getAllActive().associateBy { it.id }
+        return dao.getAllFields()
+            .filter { it.vaultItemId in active && FieldType.fromName(it.fieldType) in PASSWORD_TYPES }
+            .map { Triple(it.vaultItemId, it.id, session.decryptField(it.encryptedValue, it.id)) }
+    }
+
+    private fun PasswordPolicyEntity.toDomain() = PasswordPolicy(
+        itemId = vaultItemId, minLength = minLength, maxLength = maxLength, requireUppercase = requireUppercase,
+        requireLowercase = requireLowercase, requireDigit = requireDigit, requireSymbol = requireSymbol,
+        allowedSymbols = allowedSymbols, forbiddenCharacters = forbiddenCharacters, notes = notes,
+        policySource = policySource, lastVerifiedAt = lastVerifiedAt,
+    )
 
     override suspend fun markReviewed(itemId: String, reviewedAt: Long) {
         val now = clock.nowMillis()
@@ -164,6 +244,10 @@ class VaultRepositoryImpl(
     }
 
     // ------------------------------------------------------------ helpers
+
+    private val PASSWORD_TYPES = setOf(
+        FieldType.PASSWORD, FieldType.PROFILE_PASSWORD, FieldType.TRANSACTION_PASSWORD, FieldType.WIFI_PASSWORD, FieldType.CUSTOM_SECRET,
+    )
 
     private fun event(itemId: String?, type: HistoryEventType, detail: String?, now: Long) =
         CredentialHistoryEntity(UUID.randomUUID().toString(), itemId, type.name, detail, now)

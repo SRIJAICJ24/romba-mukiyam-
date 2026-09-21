@@ -111,3 +111,38 @@ data class HistoryEvent(
     val detail: String?,
     val occurredAt: Long,
 )
+
+/** Per-account password rules (entered by the user from the service's published policy). */
+data class PasswordPolicy(
+    val itemId: String,
+    val minLength: Int? = null,
+    val maxLength: Int? = null,
+    val requireUppercase: Boolean = false,
+    val requireLowercase: Boolean = false,
+    val requireDigit: Boolean = false,
+    val requireSymbol: Boolean = false,
+    val allowedSymbols: String? = null,
+    val forbiddenCharacters: String? = null,
+    val notes: String? = null,
+    val policySource: String? = null,
+    val lastVerifiedAt: Long? = null,
+) {
+    /** Returns violation keys; empty means compliant. */
+    fun violations(password: String): List<String> = buildList {
+        minLength?.let { if (password.length < it) add("min_length") }
+        maxLength?.let { if (password.length > it) add("max_length") }
+        if (requireUppercase && password.none { it.isUpperCase() }) add("uppercase")
+        if (requireLowercase && password.none { it.isLowerCase() }) add("lowercase")
+        if (requireDigit && password.none { it.isDigit() }) add("digit")
+        if (requireSymbol && password.none { !it.isLetterOrDigit() }) add("symbol")
+        allowedSymbols?.takeIf { it.isNotBlank() }?.let { allowed ->
+            if (password.any { !it.isLetterOrDigit() && it !in allowed }) add("disallowed_symbol")
+        }
+        forbiddenCharacters?.takeIf { it.isNotEmpty() }?.let { forbidden ->
+            if (password.any { it in forbidden }) add("forbidden_char")
+        }
+    }
+}
+
+/** Current password digest for reuse detection (never the password). */
+data class PasswordDigest(val itemId: String, val fieldId: String, val digestHex: String, val changedAt: Long)

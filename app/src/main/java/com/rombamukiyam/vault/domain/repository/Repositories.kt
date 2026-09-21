@@ -4,6 +4,8 @@ import com.rombamukiyam.vault.domain.model.AvatarType
 import com.rombamukiyam.vault.domain.model.FamilyProfile
 import com.rombamukiyam.vault.domain.model.HistoryEvent
 import com.rombamukiyam.vault.domain.model.HistoryEventType
+import com.rombamukiyam.vault.domain.model.PasswordDigest
+import com.rombamukiyam.vault.domain.model.PasswordPolicy
 import com.rombamukiyam.vault.domain.model.Relationship
 import com.rombamukiyam.vault.domain.model.VaultCategory
 import com.rombamukiyam.vault.domain.model.VaultItem
@@ -48,7 +50,17 @@ interface VaultRepository {
     suspend fun restore(id: String)
     suspend fun deletePermanently(id: String)
     suspend fun purgeTrashOlderThan(days: Int): Int
-    /** Atomic password change: field value + lastChanged + history (+ history digest handled in Phase 3). */
+    /** Atomic password change: field value + lastChanged + history event + history digest, all-or-nothing. */
     suspend fun changePassword(itemId: String, fieldId: String, newPassword: String, changedAt: Long)
     suspend fun markReviewed(itemId: String, reviewedAt: Long)
+
+    // ---- password tools (schema v2)
+    fun observeCurrentDigests(): Flow<List<PasswordDigest>>
+    suspend fun wasUsedBefore(itemId: String, fieldId: String, password: String): Boolean
+    fun observePolicy(itemId: String): Flow<PasswordPolicy?>
+    suspend fun getPolicy(itemId: String): PasswordPolicy?
+    suspend fun savePolicy(policy: PasswordPolicy)
+    suspend fun deletePolicy(itemId: String)
+    /** Decrypted primary-password values for local health analysis only; never leaves the process. */
+    suspend fun primaryPasswordsForHealth(): List<Triple<String, String, String>>
 }

@@ -66,6 +66,8 @@ fun CredentialDetailScreen(
     safeMode: Boolean,
     onBack: () -> Unit,
     onEdit: () -> Unit,
+    onChangePassword: () -> Unit = {},
+    onEditPolicy: () -> Unit = {},
     viewModel: CredentialDetailViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(itemId) { viewModel.load(itemId) }
@@ -108,7 +110,7 @@ fun CredentialDetailScreen(
         when {
             !state.loaded -> Unit
             item == null -> EmptyState(title = stringResource(R.string.detail_not_found), body = "", modifier = Modifier.padding(padding))
-            else -> DetailBody(item, state, safeMode, gate, viewModel, Modifier.padding(padding))
+            else -> DetailBody(item, state, safeMode, gate, viewModel, onChangePassword, onEditPolicy, Modifier.padding(padding))
         }
     }
 
@@ -139,6 +141,8 @@ private fun DetailBody(
     safeMode: Boolean,
     gate: (onGranted: () -> Unit) -> Unit,
     viewModel: CredentialDetailViewModel,
+    onChangePassword: () -> Unit,
+    onEditPolicy: () -> Unit,
     modifier: Modifier,
 ) {
     val noGate: (onGranted: () -> Unit) -> Unit = { it() }
@@ -213,8 +217,10 @@ private fun DetailBody(
                         )
                         if (!safeMode && item.deletedAt == null) {
                             Spacer(Modifier.height(8.dp))
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 LinkButton(stringResource(R.string.detail_mark_reviewed), onClick = viewModel::markReviewed)
+                                LinkButton(stringResource(R.string.detail_change_password), onClick = onChangePassword)
+                                LinkButton(stringResource(R.string.policy_title), onClick = onEditPolicy)
                             }
                         }
                     }

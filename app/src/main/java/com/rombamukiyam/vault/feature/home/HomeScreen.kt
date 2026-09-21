@@ -21,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.HealthAndSafety
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
@@ -64,6 +65,7 @@ fun HomeScreen(
     onAdd: () -> Unit,
     onOpenAlerts: () -> Unit,
     onOpenBackup: () -> Unit,
+    onOpenHealth: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -106,6 +108,10 @@ fun HomeScreen(
 
             item { SectionHeader(stringResource(R.string.home_section_attention)) }
             item { AttentionSection(state, onOpenAlerts, onOpenBackup) }
+            item {
+                Spacer(Modifier.height(8.dp))
+                AttentionCard(stringResource(R.string.health_title), stringResource(R.string.health_home_hint), AttentionLevel.INFO, icon = Icons.Filled.HealthAndSafety, onClick = onOpenHealth)
+            }
 
             item { SectionHeader(stringResource(R.string.home_section_vault)) }
             item { CategoryGrid(state, onOpenCategory) }

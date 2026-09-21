@@ -381,4 +381,71 @@
     <string name="gen_mode_random">Random</string>
     <string name="gen_mode_memorable">Memorable</string>
     <string name="gen_mode_passphrase">Passphrase</string>
+    <!-- Password change workflow -->
+    <string name="change_intro_title">Change the password on the official website first</string>
+    <string name="change_intro_body">Romba Mukiyam never changes a password for you. Generate or type the new password here, change it on the bank or service, then confirm so the vault is updated in one safe step.</string>
+    <string name="change_which_password">Which password?</string>
+    <string name="change_step1">1. Choose the new password</string>
+    <string name="change_step2">2. Change it on the official website or app</string>
+    <string name="change_step3">3. Confirm and save</string>
+    <string name="change_new_password">New password</string>
+    <string name="change_copy_login">Copy %1$s</string>
+    <string name="change_copy_new">Copy new password</string>
+    <string name="change_manual_note">Use the copied login and new password on the official site. Come back here when the site confirms the change.</string>
+    <string name="change_confirm_site">I have changed the password on the official website or app.</string>
+    <string name="change_save">Save new password</string>
+    <string name="change_reused_title">This password was used before</string>
+    <string name="change_reused_body">Reusing an old password weakens this account. Choose a different one, or confirm below if the service forced it.</string>
+    <string name="change_reuse_anyway">Save it anyway</string>
+
+    <!-- Policy -->
+    <string name="policy_title">Password rules</string>
+    <string name="policy_intro_title">Rules published by this bank or service</string>
+    <string name="policy_intro_body">Enter the rules shown on the service\'s change-password page. The generator and the change workflow will respect them. Rules change over time; re-check them occasionally.</string>
+    <string name="policy_min_length">Minimum length</string>
+    <string name="policy_max_length">Maximum length</string>
+    <string name="policy_allowed_symbols">Allowed symbols (leave empty = any)</string>
+    <string name="policy_forbidden">Forbidden characters</string>
+    <string name="policy_source">Where these rules come from</string>
+    <string name="policy_last_verified">Last verified: %1$s</string>
+    <string name="policy_mark_verified">Verified today</string>
+    <string name="policy_remove">Remove rules</string>
+    <string name="policy_err_min_gt_max">Minimum length cannot exceed maximum length.</string>
+    <string name="policy_summary_prefix">Rules:</string>
+    <string name="policy_min">min %1$d</string>
+    <string name="policy_max">max %1$d</string>
+    <string name="policy_allowed">symbols %1$s</string>
+    <string name="pv_min_length">At least %1$d characters are required.</string>
+    <string name="pv_max_length">At most %1$d characters are allowed.</string>
+    <string name="pv_uppercase">Needs an uppercase letter</string>
+    <string name="pv_lowercase">Needs a lowercase letter</string>
+    <string name="pv_digit">Needs a number</string>
+    <string name="pv_symbol">Needs a symbol</string>
+    <string name="pv_disallowed_symbol">Only these symbols are allowed: %1$s</string>
+    <string name="pv_forbidden">These characters are not allowed: %1$s</string>
+
+    <!-- Health -->
+    <string name="health_title">Password health</string>
+    <string name="health_home_hint">Check for weak, reused or old passwords — all on this phone.</string>
+    <string name="health_score">Vault health score</string>
+    <string name="health_items_checked">%1$d credentials checked</string>
+    <string name="health_summary">Summary</string>
+    <string name="health_findings">Needs attention</string>
+    <string name="health_weak">%1$d weak</string>
+    <string name="health_reused">%1$d reused</string>
+    <string name="health_old">%1$d older than a year</string>
+    <string name="health_overdue">%1$d review overdue</string>
+    <string name="health_missing_2fa">%1$d without 2FA info</string>
+    <string name="health_missing_recovery">%1$d without recovery info</string>
+    <string name="health_backup_overdue">Backup overdue</string>
+    <string name="health_backup_ok">Backup up to date</string>
+    <string name="health_all_good_title">All credentials look healthy</string>
+    <string name="health_all_good_body">No weak, reused or overdue passwords were found.</string>
+    <string name="issue_weak">Weak password</string>
+    <string name="issue_reused">Reused password</string>
+    <string name="issue_old">Older than a year</string>
+    <string name="issue_overdue">Review overdue</string>
+    <string name="issue_missing_2fa">No 2FA info</string>
+    <string name="issue_missing_recovery">No recovery info</string>
+    <string name="issue_no_date">Change date unknown</string>
 </resources>

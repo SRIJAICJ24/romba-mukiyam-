@@ -29,7 +29,10 @@ import androidx.navigation.navArgument
 import com.rombamukiyam.vault.R
 import com.rombamukiyam.vault.domain.model.VaultCategory
 import com.rombamukiyam.vault.feature.alerts.AlertsScreen
+import com.rombamukiyam.vault.feature.credential.ChangePasswordScreen
 import com.rombamukiyam.vault.feature.credential.CredentialDetailScreen
+import com.rombamukiyam.vault.feature.credential.PolicyScreen
+import com.rombamukiyam.vault.feature.health.PasswordHealthScreen
 import com.rombamukiyam.vault.feature.credential.CredentialFormScreen
 import com.rombamukiyam.vault.feature.family.FamilyScreen
 import com.rombamukiyam.vault.feature.home.HomeScreen
@@ -52,10 +55,15 @@ object Routes {
     const val ITEM = "item/{id}"
     const val ITEM_EDIT = "item/{id}/edit"
     const val ITEM_NEW = "item/new?category={category}&owner={owner}"
+    const val ITEM_CHANGE_PASSWORD = "item/{id}/change-password"
+    const val ITEM_POLICY = "item/{id}/policy"
+    const val HEALTH = "health"
 
     fun vault(category: VaultCategory? = null, owner: String? = null) = "vault?category=${category?.name ?: ""}&owner=${owner ?: ""}"
     fun item(id: String) = "item/$id"
     fun itemEdit(id: String) = "item/$id/edit"
+    fun itemChangePassword(id: String) = "item/$id/change-password"
+    fun itemPolicy(id: String) = "item/$id/policy"
     fun itemNew(category: VaultCategory? = null, owner: String? = null) = "item/new?category=${category?.name ?: ""}&owner=${owner ?: ""}"
 }
 
@@ -104,6 +112,7 @@ fun MainShell(safeMode: Boolean, onLock: () -> Unit) {
                     onAdd = { nav.navigate(Routes.itemNew()) },
                     onOpenAlerts = { nav.navigateTopLevel(Routes.ALERTS) },
                     onOpenBackup = { nav.navigateTopLevel(Routes.SETTINGS) },
+                    onOpenHealth = { nav.navigate(Routes.HEALTH) },
                 )
             }
             composable(Routes.FAMILY) { FamilyScreen(safeMode = safeMode, onOpenOwner = { nav.navigate(Routes.vault(owner = it)) }) }
@@ -137,8 +146,19 @@ fun MainShell(safeMode: Boolean, onLock: () -> Unit) {
                     safeMode = safeMode,
                     onBack = { nav.popBackStack() },
                     onEdit = { nav.navigate(Routes.itemEdit(id)) },
+                    onChangePassword = { nav.navigate(Routes.itemChangePassword(id)) },
+                    onEditPolicy = { nav.navigate(Routes.itemPolicy(id)) },
                 )
             }
+            composable(Routes.ITEM_CHANGE_PASSWORD, arguments = listOf(navArgument("id") { type = NavType.StringType })) { entry ->
+                val id = entry.arguments?.getString("id") ?: return@composable
+                ChangePasswordScreen(itemId = id, onBack = { nav.popBackStack() })
+            }
+            composable(Routes.ITEM_POLICY, arguments = listOf(navArgument("id") { type = NavType.StringType })) { entry ->
+                val id = entry.arguments?.getString("id") ?: return@composable
+                PolicyScreen(itemId = id, onBack = { nav.popBackStack() })
+            }
+            composable(Routes.HEALTH) { PasswordHealthScreen(onBack = { nav.popBackStack() }, onOpenItem = { nav.navigate(Routes.item(it)) }) }
             composable(Routes.ITEM_EDIT, arguments = listOf(navArgument("id") { type = NavType.StringType })) { entry ->
                 val id = entry.arguments?.getString("id") ?: return@composable
                 CredentialFormScreen(itemId = id, presetCategory = null, presetOwner = null, onDone = { nav.popBackStack() })
