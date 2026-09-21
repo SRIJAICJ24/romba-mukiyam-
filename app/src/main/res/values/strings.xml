@@ -504,4 +504,93 @@
     <string name="change_pass_intro_body">Only the key that protects your vault is re-wrapped with the new passphrase. Fingerprint unlock and your recovery key keep working. Existing backups still need the passphrase that was in use when they were made.</string>
     <string name="change_pass_done_title">Master passphrase changed</string>
     <string name="change_pass_done_body">Use the new passphrase from now on. Consider creating a fresh backup.</string>
+    <!-- Settings -->
+    <string name="settings_security">Security</string>
+    <string name="settings_biometric">Fingerprint unlock</string>
+    <string name="settings_bio_on">Enabled</string>
+    <string name="settings_bio_off">Off — master passphrase only</string>
+    <string name="settings_bio_level_strongbox">Enabled · key in StrongBox secure element</string>
+    <string name="settings_bio_level_tee">Enabled · key in hardware-backed keystore</string>
+    <string name="settings_bio_level_software">Enabled · software keystore (this device has no secure hardware)</string>
+    <string name="settings_reauth_high">Re-check identity for High Security items</string>
+    <string name="settings_reauth_high_body">Ask for fingerprint (or passphrase) before revealing or copying bank secrets.</string>
+    <string name="settings_auto_lock">Auto-lock after leaving the app</string>
+    <string name="settings_immediately">Immediately</string>
+    <string name="settings_screenshot">Screenshot protection</string>
+    <string name="settings_screenshot_body">Blocks screenshots, screen recording and the Recent Apps preview.</string>
+    <string name="settings_clipboard">Clear clipboard after</string>
+    <string name="settings_reveal">Hide revealed passwords after</string>
+    <string name="settings_max_privacy">Maximum privacy while locked</string>
+    <string name="settings_max_privacy_body">Show nothing about the vault on the lock screen or in notifications.</string>
+    <string name="seconds_n">%1$d s</string>
+    <string name="minutes_n">%1$d min</string>
+
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_notif_enable">Enable notifications</string>
+    <string name="settings_notif_review">Password review alerts</string>
+    <string name="settings_notif_doc">Document expiry alerts</string>
+    <string name="settings_notif_card">Card expiry alerts</string>
+    <string name="settings_backup_reminder">Backup reminder every</string>
+    <string name="settings_notif_names">Show item names in notifications</string>
+    <string name="settings_notif_names_body">Off (recommended): notifications only say “1 item needs attention”. On: e.g. “SBI - Dad”. Never usernames, IDs or passwords.</string>
+
+    <string name="settings_vault">Vault</string>
+    <string name="settings_default_review">Default review policy for new credentials</string>
+    <string name="settings_trash_retention">Keep items in Trash for</string>
+    <string name="vault_health_title">Vault Health</string>
+
+    <string name="settings_backup_body">Create, verify or restore encrypted .rmvault files.</string>
+    <string name="settings_recovery_info">Recovery information</string>
+    <string name="settings_recovery_info_body">Fingerprint unavailable → master passphrase. Forgot passphrase → recovery key. Phone lost → new install + .rmvault backup + the passphrase used for that backup. Lost everything → the vault cannot be opened by anyone.</string>
+
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_theme">Theme</string>
+    <string name="theme_system">Follow system</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="settings_text_size">Text size</string>
+
+    <string name="settings_privacy">Privacy</string>
+    <string name="privacy_internet">Internet access</string>
+    <string name="privacy_cloud">Cloud sync</string>
+    <string name="privacy_analytics">Analytics</string>
+    <string name="privacy_telemetry">Telemetry / crash upload</string>
+    <string name="privacy_disabled">Disabled</string>
+
+    <string name="settings_about">About</string>
+    <string name="about_version">App version</string>
+    <string name="about_schema">Database schema version</string>
+    <string name="about_backup_format">Backup format version</string>
+    <string name="about_security_summary">Security summary</string>
+    <string name="about_security_summary_body">SQLCipher (AES-256) database · AES-256-GCM field encryption · Argon2id master passphrase · Android Keystore fingerprint key · encrypted .rmvault backups · no network permission</string>
+    <string name="about_licenses">Open source licences</string>
+    <string name="diagnostics_title">Diagnostics</string>
+    <string name="diagnostics_body">Local record of safe error codes to help troubleshoot problems. Contains no passwords, usernames or account details and is never uploaded.</string>
+    <string name="diagnostics_empty">No diagnostic events recorded.</string>
+    <string name="diagnostics_clear">Clear diagnostics</string>
+
+    <!-- Vault health -->
+    <string name="vh_db_accessible">Database accessible</string>
+    <string name="vh_encryption">Encryption active on disk</string>
+    <string name="vh_schema">Schema version %1$d</string>
+    <string name="vh_items_readable">Vault items readable</string>
+    <string name="vh_last_check">Last integrity check: %1$s</string>
+    <string name="vh_last_backup">Last backup: %1$s</string>
+    <string name="vh_backup_verified">Last backup verified</string>
+    <string name="vh_db_size">Database size: %1$d KB</string>
+    <string name="vh_run_check">Run full integrity check</string>
+    <string name="vh_check_ok_title">Integrity check passed</string>
+    <string name="vh_check_fail_title">Integrity problems found</string>
+    <string name="vh_check_fail_body">Do not make changes. Create a backup now if possible, and consider restoring from a verified backup. Nothing has been deleted.</string>
+    <string name="vh_snapshots">Safety copies</string>
+    <string name="vh_snapshots_body">Copies of the vault taken automatically before each restore. Delete them once you are sure the restore was right.</string>
+    <string name="vh_ok">OK</string>
+    <string name="vh_attention">Attention</string>
+
+    <!-- Safe mode -->
+    <string name="safe_mode_offer_title">The vault database reported a problem</string>
+    <string name="safe_mode_offer_body">Nothing has been changed or deleted. You can open the vault in read-only Safe Mode to view credentials and create a backup.</string>
+    <string name="safe_mode_open">Open in Safe Mode (read-only)</string>
+    <string name="safe_mode_settings_hint">Editing is disabled. Use Backup &amp; Recovery to save a copy or restore a verified backup.</string>
+    <string name="safe_mode_health_hint">The vault was opened read-only because an integrity problem was detected.</string>
 </resources>

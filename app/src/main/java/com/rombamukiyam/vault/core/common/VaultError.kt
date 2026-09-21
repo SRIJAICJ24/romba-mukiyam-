@@ -76,11 +76,28 @@ sealed class Outcome<out T> {
     val isSuccess: Boolean get() = this is Success
 }
 
-/** Runs [block] and converts any exception into a typed failure. */
+/**
+ * Sink for safe diagnostics. Installed by the Application; receives only the error code and the exception
+ * class name — never messages, never data.
+ */
+object DiagnosticsBus {
+    @Volatile var sink: ((code: String, exceptionClass: String?) -> Unit)? = null
+
+    fun report(error: VaultError) {
+        // Expected user-level outcomes are not diagnostics.
+        if (error is VaultError.AuthenticationFailed || error is VaultError.ValidationFailed || error is VaultError.BiometricCancelled || error is VaultError.WrongRecoveryCredential) return
+        sink?.invoke(error.code, error.cause?.javaClass?.simpleName)
+    }
+}
+
+/** Runs [block] and converts any exception into a typed failure (and reports it to diagnostics). */
 inline fun <T> safeOutcome(block: () -> T): Outcome<T> = try {
     Outcome.Success(block())
 } catch (e: VaultException) {
+    DiagnosticsBus.report(e.error)
     Outcome.Failure(e.error)
 } catch (e: Exception) {
-    Outcome.Failure(ErrorMapper.map(e))
+    val mapped = ErrorMapper.map(e)
+    DiagnosticsBus.report(mapped)
+    Outcome.Failure(mapped)
 }

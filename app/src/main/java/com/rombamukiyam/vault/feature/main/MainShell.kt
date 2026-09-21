@@ -39,6 +39,10 @@ import com.rombamukiyam.vault.feature.health.PasswordHealthScreen
 import com.rombamukiyam.vault.feature.credential.CredentialFormScreen
 import com.rombamukiyam.vault.feature.family.FamilyScreen
 import com.rombamukiyam.vault.feature.home.HomeScreen
+import com.rombamukiyam.vault.feature.health.VaultHealthScreen
+import com.rombamukiyam.vault.feature.settings.DiagnosticsScreen
+import com.rombamukiyam.vault.feature.settings.LicensesScreen
+import com.rombamukiyam.vault.feature.settings.SettingsNav
 import com.rombamukiyam.vault.feature.settings.SettingsScreen
 import com.rombamukiyam.vault.feature.vault.SearchScreen
 import com.rombamukiyam.vault.feature.vault.TrashScreen
@@ -64,6 +68,9 @@ object Routes {
     const val BACKUP = "settings/backup"
     const val RECOVERY_KIT = "settings/recovery-kit"
     const val CHANGE_PASSPHRASE = "settings/change-passphrase"
+    const val VAULT_HEALTH = "settings/vault-health"
+    const val DIAGNOSTICS = "settings/diagnostics"
+    const val LICENSES = "settings/licenses"
 
     fun vault(category: VaultCategory? = null, owner: String? = null) = "vault?category=${category?.name ?: ""}&owner=${owner ?: ""}"
     fun item(id: String) = "item/$id"
@@ -146,12 +153,21 @@ fun MainShell(safeMode: Boolean, onLock: () -> Unit) {
                 SettingsScreen(
                     safeMode = safeMode,
                     onLock = onLock,
-                    onOpenBackup = { nav.navigate(Routes.BACKUP) },
-                    onOpenRecoveryKit = { nav.navigate(Routes.RECOVERY_KIT) },
-                    onChangePassphrase = { nav.navigate(Routes.CHANGE_PASSPHRASE) },
-                    onOpenHealth = { nav.navigate(Routes.HEALTH) },
+                    nav = SettingsNav(
+                        onOpenBackup = { nav.navigate(Routes.BACKUP) },
+                        onOpenRecoveryKit = { nav.navigate(Routes.RECOVERY_KIT) },
+                        onChangePassphrase = { nav.navigate(Routes.CHANGE_PASSPHRASE) },
+                        onOpenHealth = { nav.navigate(Routes.HEALTH) },
+                        onOpenVaultHealth = { nav.navigate(Routes.VAULT_HEALTH) },
+                        onOpenDiagnostics = { nav.navigate(Routes.DIAGNOSTICS) },
+                        onOpenFamily = { nav.navigateTopLevel(Routes.FAMILY) },
+                        onOpenLicenses = { nav.navigate(Routes.LICENSES) },
+                    ),
                 )
             }
+            composable(Routes.VAULT_HEALTH) { VaultHealthScreen(onBack = { nav.popBackStack() }) }
+            composable(Routes.DIAGNOSTICS) { DiagnosticsScreen(onBack = { nav.popBackStack() }) }
+            composable(Routes.LICENSES) { LicensesScreen(onBack = { nav.popBackStack() }) }
             composable(Routes.BACKUP) { BackupScreen(safeMode = safeMode, onBack = { nav.popBackStack() }) }
             composable(Routes.RECOVERY_KIT) { RecoveryKitScreen(onBack = { nav.popBackStack() }) }
             composable(Routes.CHANGE_PASSPHRASE) { ChangePassphraseScreen(onBack = { nav.popBackStack() }) }

@@ -33,6 +33,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -73,18 +74,19 @@ fun CredentialDetailScreen(
     LaunchedEffect(itemId) { viewModel.load(itemId) }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val resources = LocalResources.current
     val snackbar = remember { SnackbarHostState() }
     val gate = rememberReauthGate(highSecurity = state.item?.highSecurity == true)
 
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
-                is DetailEffect.Snack -> snackbar.showSnackbar(context.getString(effect.messageRes))
+                is DetailEffect.Snack -> snackbar.showSnackbar(resources.getString(effect.messageRes))
                 is DetailEffect.OpenUrl -> runCatching {
                     context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(effect.url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                 }
                 DetailEffect.Closed -> onBack()
-                is DetailEffect.Error -> snackbar.showSnackbar(context.getString(R.string.err_unknown))
+                is DetailEffect.Error -> snackbar.showSnackbar(resources.getString(R.string.err_unknown))
             }
         }
     }

@@ -14,7 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.activity.compose.LocalActivity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
@@ -112,7 +112,7 @@ class ReauthViewModel @Inject constructor(
 /** Returns a gate function: `gate(onGranted)`; also hosts the passphrase fallback dialog. */
 @Composable
 fun rememberReauthGate(highSecurity: Boolean, viewModel: ReauthViewModel = hiltViewModel()): (onGranted: () -> Unit) -> Unit {
-    val activity = LocalContext.current as? FragmentActivity
+    val activity = LocalActivity.current as? FragmentActivity
     val title = stringResource(R.string.bio_confirm_title)
     val subtitle = stringResource(R.string.bio_confirm_subtitle)
     if (viewModel.passphraseDialogVisible) {

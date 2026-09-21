@@ -30,12 +30,12 @@ class UnlockVaultUseCase @Inject constructor(
     private val session: VaultSession,
     private val dispatchers: DispatcherProvider,
 ) {
-    suspend operator fun invoke(passphrase: CharArray): Outcome<Unit> = withContext(dispatchers.default) {
+    suspend operator fun invoke(passphrase: CharArray, safeMode: Boolean = false): Outcome<Unit> = withContext(dispatchers.default) {
         safeOutcome {
             val vk = passphrase.useAsBytes { keys.unlockWithPassphrase(it) }
                 ?: throw VaultException(VaultError.AuthenticationFailed())
             try {
-                session.unlock(vk)
+                session.unlock(vk, safeMode = safeMode)
             } finally {
                 vk.wipe()
             }

@@ -93,6 +93,7 @@ class VaultRepositoryImpl(
     // ------------------------------------------------------------ writes
 
     override suspend fun create(draft: VaultItemDraft): String {
+        session.assertWritable()
         val now = clock.nowMillis()
         val id = draft.id ?: UUID.randomUUID().toString()
         val entity = draft.toEntity(id, createdAt = now, now = now)
@@ -108,6 +109,7 @@ class VaultRepositoryImpl(
     }
 
     override suspend fun update(draft: VaultItemDraft) {
+        session.assertWritable()
         val id = requireNotNull(draft.id) { "update requires id" }
         val existing = dao.getById(id) ?: error("item missing")
         val now = clock.nowMillis()
@@ -155,21 +157,27 @@ class VaultRepositoryImpl(
         tagDao.insertCrossRefs(refs)
     }
 
-    override suspend fun setFavorite(id: String, favorite: Boolean) = dao.setFavorite(id, favorite, clock.nowMillis())
+    override suspend fun setFavorite(id: String, favorite: Boolean) {
+        session.assertWritable()
+        dao.setFavorite(id, favorite, clock.nowMillis())
+    }
 
     override suspend fun moveToTrash(id: String) {
+        session.assertWritable()
         val now = clock.nowMillis()
         dao.moveToTrash(id, now, event(id, HistoryEventType.MOVED_TO_TRASH, null, now))
         reminders?.republish() // trashed items drop out of the schedule
     }
 
     override suspend fun restore(id: String) {
+        session.assertWritable()
         val now = clock.nowMillis()
         dao.restoreFromTrash(id, now, event(id, HistoryEventType.RESTORED, null, now))
         reminders?.republish()
     }
 
     override suspend fun deletePermanently(id: String) {
+        session.assertWritable()
         // Cascades remove fields, history, digests, policy, reminders and tag links for this item.
         dao.deletePermanently(id)
         session.database().tagDao().deleteUnusedTags()
@@ -177,6 +185,7 @@ class VaultRepositoryImpl(
     }
 
     override suspend fun purgeTrashOlderThan(days: Int): Int {
+        if (session.isSafeMode) return 0
         val cutoff = clock.nowMillis() - days * 86_400_000L
         val old = dao.getTrashOlderThan(cutoff)
         old.forEach { dao.deletePermanently(it.id) }
@@ -185,6 +194,7 @@ class VaultRepositoryImpl(
     }
 
     override suspend fun changePassword(itemId: String, fieldId: String, newPassword: String, changedAt: Long) {
+        session.assertWritable()
         val now = clock.nowMillis()
         val fields = dao.getFields(itemId)
         val field = fields.firstOrNull { it.id == fieldId } ?: error("field missing")
@@ -225,6 +235,7 @@ class VaultRepositoryImpl(
     override suspend fun getPolicy(itemId: String): PasswordPolicy? = session.database().passwordDao().getPolicy(itemId)?.toDomain()
 
     override suspend fun savePolicy(policy: PasswordPolicy) {
+        session.assertWritable()
         session.database().passwordDao().upsertPolicy(
             PasswordPolicyEntity(
                 vaultItemId = policy.itemId, minLength = policy.minLength, maxLength = policy.maxLength,
@@ -237,7 +248,10 @@ class VaultRepositoryImpl(
         )
     }
 
-    override suspend fun deletePolicy(itemId: String) = session.database().passwordDao().deletePolicy(itemId)
+    override suspend fun deletePolicy(itemId: String) {
+        session.assertWritable()
+        session.database().passwordDao().deletePolicy(itemId)
+    }
 
     override suspend fun primaryPasswordsForHealth(): List<Triple<String, String, String>> {
         val active = dao.getAllActive().associateBy { it.id }
@@ -254,6 +268,7 @@ class VaultRepositoryImpl(
     )
 
     override suspend fun markReviewed(itemId: String, reviewedAt: Long) {
+        session.assertWritable()
         val now = clock.nowMillis()
         session.database().runInTransactionSuspend {
             dao.setPasswordLastChanged(itemId, reviewedAt, now)

@@ -41,7 +41,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.activity.compose.LocalActivity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
@@ -219,7 +219,7 @@ private fun RecoveryKit(state: OnboardingUiState, vm: OnboardingViewModel) {
 
 @Composable
 private fun Biometric(state: OnboardingUiState, vm: OnboardingViewModel) {
-    val activity = LocalContext.current as? FragmentActivity
+    val activity = LocalActivity.current as? FragmentActivity
     val title = stringResource(R.string.bio_enroll_title)
     val subtitle = stringResource(R.string.bio_enroll_subtitle)
     val negative = stringResource(R.string.action_cancel)

@@ -99,6 +99,14 @@ class VaultSession(
 
     fun database(): RombaDatabase = db ?: throw VaultException(VaultError.VaultLocked)
 
+    val isSafeMode: Boolean get() = (_state.value as? SessionState.Unlocked)?.safeMode == true
+
+    /** Safe Mode is read-only: every repository write path calls this first. */
+    fun assertWritable() {
+        if (!isUnlocked) throw VaultException(VaultError.VaultLocked)
+        if (isSafeMode) throw VaultException(VaultError.DatabaseIntegrityFailure())
+    }
+
     /** Copy of the Vault Key for key-management operations (change passphrase, enable biometric). Wipe after use. */
     fun vaultKeyCopy(): ByteArray = vaultKey?.copyOf() ?: throw VaultException(VaultError.VaultLocked)
 

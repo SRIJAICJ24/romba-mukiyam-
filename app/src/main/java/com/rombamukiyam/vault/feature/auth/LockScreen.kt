@@ -26,7 +26,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.activity.compose.LocalActivity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -48,7 +48,7 @@ import com.rombamukiyam.vault.ui.components.message
 @Composable
 fun LockScreen(viewModel: LockViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val activity = LocalContext.current as? FragmentActivity
+    val activity = LocalActivity.current as? FragmentActivity
     val bioTitle = stringResource(R.string.bio_prompt_title)
     val bioSubtitle = stringResource(R.string.bio_prompt_subtitle)
     val bioNegative = stringResource(R.string.lock_use_passphrase)
@@ -132,6 +132,19 @@ private fun BiometricSection(state: LockUiState, onUnlock: () -> Unit) {
 
 @Composable
 private fun PassphraseSection(state: LockUiState, viewModel: LockViewModel) {
+    if (state.offerSafeMode) {
+        AttentionCard(
+            title = stringResource(R.string.safe_mode_offer_title),
+            body = stringResource(R.string.safe_mode_offer_body),
+            level = AttentionLevel.CRITICAL,
+        )
+        Spacer(Modifier.height(8.dp))
+        androidx.compose.foundation.layout.Row(verticalAlignment = Alignment.CenterVertically) {
+            androidx.compose.material3.Checkbox(checked = state.safeModeRequested, onCheckedChange = viewModel::requestSafeMode)
+            Text(stringResource(R.string.safe_mode_open), style = MaterialTheme.typography.bodyLarge)
+        }
+        Spacer(Modifier.height(8.dp))
+    }
     PassphraseField(
         value = state.passphrase,
         onValueChange = viewModel::onPassphraseChange,

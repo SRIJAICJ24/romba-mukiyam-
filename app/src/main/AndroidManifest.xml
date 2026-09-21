@@ -37,6 +37,11 @@
             </intent-filter>
         </activity>
 
+        <!-- Library components we do not need: drop them from the merged manifest to minimise attack surface. -->
+        <receiver
+            android:name="androidx.work.impl.diagnostics.DiagnosticsReceiver"
+            tools:node="remove" />
+
         <!-- WorkManager: disable default initializer; we use Hilt-aware on-demand initialization. -->
         <provider
             android:name="androidx.startup.InitializationProvider"

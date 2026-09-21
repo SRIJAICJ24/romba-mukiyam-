@@ -32,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -184,6 +185,7 @@ fun ChangePasswordScreen(itemId: String, onBack: () -> Unit, viewModel: ChangePa
     LaunchedEffect(itemId) { viewModel.load(itemId) }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val resources = LocalResources.current
     val snackbar = remember { SnackbarHostState() }
     LifecycleEventEffect(Lifecycle.Event.ON_STOP) { /* keep the typed password while the user visits the bank site */ }
 
@@ -191,7 +193,7 @@ fun ChangePasswordScreen(itemId: String, onBack: () -> Unit, viewModel: ChangePa
         viewModel.effect.collect { e ->
             when (e) {
                 ChangePasswordEffect.Done -> onBack()
-                is ChangePasswordEffect.Snack -> snackbar.showSnackbar(context.getString(e.res))
+                is ChangePasswordEffect.Snack -> snackbar.showSnackbar(resources.getString(e.res))
                 is ChangePasswordEffect.OpenUrl -> runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(e.url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
             }
         }

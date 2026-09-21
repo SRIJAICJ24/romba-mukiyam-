@@ -40,6 +40,7 @@ class FamilyRepositoryImpl(
     override suspend fun count(): Int = dao.count()
 
     override suspend fun create(displayName: String, relationship: Relationship, avatarType: AvatarType, avatarColor: Long): FamilyProfile {
+        session.assertWritable()
         val now = clock.nowMillis()
         val entity = FamilyProfileEntity(
             id = UUID.randomUUID().toString(),
@@ -56,10 +57,14 @@ class FamilyRepositoryImpl(
     }
 
     override suspend fun update(profile: FamilyProfile) {
+        session.assertWritable()
         dao.update(profile.copy(updatedAt = clock.nowMillis()).toEntity())
     }
 
-    override suspend fun setArchived(id: String, archived: Boolean) = dao.setArchived(id, archived, clock.nowMillis())
+    override suspend fun setArchived(id: String, archived: Boolean) {
+        session.assertWritable()
+        dao.setArchived(id, archived, clock.nowMillis())
+    }
 
     override suspend fun ownedItemCount(id: String): Int = dao.countItemsOwnedBy(id)
 }
