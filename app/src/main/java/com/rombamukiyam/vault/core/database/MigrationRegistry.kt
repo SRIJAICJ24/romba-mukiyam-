@@ -38,5 +38,32 @@ object MigrationRegistry {
         }
     }
 
-    val ALL: Array<Migration> = arrayOf(MIGRATION_1_2)
+    /** v3: reminders, backup metadata, diagnostics. Purely additive. */
+    val MIGRATION_2_3 = object : Migration(2, 3) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                "CREATE TABLE IF NOT EXISTS `reminders` (`id` TEXT NOT NULL, `vaultItemId` TEXT, `type` TEXT NOT NULL, `enabled` INTEGER NOT NULL DEFAULT 1, " +
+                    "`lastActionDate` INTEGER, `nextDueDate` INTEGER NOT NULL, `intervalDays` INTEGER, `notifyBeforeDays` INTEGER NOT NULL DEFAULT 7, " +
+                    "`customLabel` TEXT, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`), " +
+                    "FOREIGN KEY(`vaultItemId`) REFERENCES `vault_items`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+            )
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_reminders_vaultItemId` ON `reminders` (`vaultItemId`)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_reminders_nextDueDate` ON `reminders` (`nextDueDate`)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_reminders_type` ON `reminders` (`type`)")
+            db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_reminders_vaultItemId_type` ON `reminders` (`vaultItemId`, `type`)")
+            db.execSQL(
+                "CREATE TABLE IF NOT EXISTS `backup_metadata` (`id` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `displayName` TEXT, `sizeBytes` INTEGER NOT NULL, " +
+                    "`itemCount` INTEGER NOT NULL, `formatVersion` INTEGER NOT NULL, `schemaVersion` INTEGER NOT NULL, `verified` INTEGER NOT NULL DEFAULT 0, " +
+                    "`event` TEXT NOT NULL, PRIMARY KEY(`id`))",
+            )
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_backup_metadata_createdAt` ON `backup_metadata` (`createdAt`)")
+            db.execSQL(
+                "CREATE TABLE IF NOT EXISTS `diagnostic_events` (`id` TEXT NOT NULL, `occurredAt` INTEGER NOT NULL, `appVersion` TEXT NOT NULL, " +
+                    "`schemaVersion` INTEGER NOT NULL, `module` TEXT NOT NULL, `code` TEXT NOT NULL, `exceptionClass` TEXT, PRIMARY KEY(`id`))",
+            )
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_diagnostic_events_occurredAt` ON `diagnostic_events` (`occurredAt`)")
+        }
+    }
+
+    val ALL: Array<Migration> = arrayOf(MIGRATION_1_2, MIGRATION_2_3)
 }

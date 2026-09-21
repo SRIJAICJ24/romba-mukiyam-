@@ -448,4 +448,17 @@
     <string name="issue_missing_2fa">No 2FA info</string>
     <string name="issue_missing_recovery">No recovery info</string>
     <string name="issue_no_date">Change date unknown</string>
+    <!-- Notifications -->
+    <string name="notif_channel_name">Attention reminders</string>
+    <string name="notif_channel_desc">Password reviews, expiring cards and documents, backup reminders. Never contains passwords or account details.</string>
+    <string name="notif_backup_due">It is time to create a fresh encrypted backup.</string>
+    <plurals name="notif_generic">
+        <item quantity="one">1 item needs attention.</item>
+        <item quantity="other">%1$d items need attention.</item>
+    </plurals>
+    <string name="alerts_permission_title">Notifications are off</string>
+    <string name="alerts_permission_body">Allow notifications so Romba Mukiyam can remind you about reviews, expiries and backups. Notifications never show passwords or account details.</string>
+    <string name="alerts_permission_action">Allow notifications</string>
+    <string name="alerts_mark_done">Done</string>
+    <string name="alerts_snooze">Remind me later</string>
 </resources>

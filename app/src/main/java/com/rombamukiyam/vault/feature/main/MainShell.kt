@@ -135,7 +135,7 @@ fun MainShell(safeMode: Boolean, onLock: () -> Unit) {
                     onSearch = { nav.navigate(Routes.SEARCH) },
                 )
             }
-            composable(Routes.ALERTS) { AlertsScreen(onOpenItem = { nav.navigate(Routes.item(it)) }) }
+            composable(Routes.ALERTS) { AlertsScreen(onOpenItem = { nav.navigate(Routes.item(it)) }, onOpenBackup = { nav.navigateTopLevel(Routes.SETTINGS) }) }
             composable(Routes.SETTINGS) { SettingsScreen(safeMode = safeMode, onLock = onLock) }
             composable(Routes.SEARCH) { SearchScreen(onBack = { nav.popBackStack() }, onOpenItem = { nav.navigate(Routes.item(it)) }) }
             composable(Routes.TRASH) { TrashScreen(safeMode = safeMode, onBack = { nav.popBackStack() }, onOpenItem = { nav.navigate(Routes.item(it)) }) }

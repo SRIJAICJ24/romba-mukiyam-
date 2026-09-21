@@ -37,6 +37,6 @@ class IntegrityChecker {
 
     companion object {
         private const val TAG = "Integrity"
-        val TABLES = listOf("family_profiles", "vault_items", "credential_fields", "credential_history", "tags", "vault_item_tags", "password_history", "password_policies")
+        val TABLES = listOf("family_profiles", "vault_items", "credential_fields", "credential_history", "tags", "vault_item_tags", "password_history", "password_policies", "reminders", "backup_metadata", "diagnostic_events")
     }
 }

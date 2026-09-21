@@ -5,6 +5,8 @@ import androidx.hilt.work.HiltWorkerFactory
 import com.rombamukiyam.vault.core.common.SafeLog
 import com.rombamukiyam.vault.core.security.AutoLockController
 import androidx.work.Configuration
+import com.rombamukiyam.vault.worker.Notifications
+import com.rombamukiyam.vault.worker.ReminderCheckWorker
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
@@ -28,5 +30,7 @@ class RombaApp : Application(), Configuration.Provider {
         // SQLCipher native library must be loaded once before any database is opened.
         System.loadLibrary("sqlcipher")
         autoLock.start()
+        Notifications.ensureChannel(this)
+        ReminderCheckWorker.schedule(this)
     }
 }

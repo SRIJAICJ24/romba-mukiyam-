@@ -70,6 +70,38 @@ class MigrationTest {
     }
 
     @Test
+    fun migrate2To3_addsReminderTablesAndKeepsRows() {
+        helper.createDatabase(dbName, 2).apply {
+            seedV1(this)
+            execSQL("INSERT INTO password_history (id, vaultItemId, fieldId, digestHex, current, changedAt) VALUES ('ph1','i1','f1','abcd',1,5)")
+            execSQL("INSERT INTO password_policies (vaultItemId, requireDigit, updatedAt) VALUES ('i1',1,5)")
+            close()
+        }
+        val db = helper.runMigrationsAndValidate(dbName, 3, true, MigrationRegistry.MIGRATION_2_3)
+        assertThat(db.count("password_history")).isEqualTo(1)
+        assertThat(db.count("password_policies")).isEqualTo(1)
+        assertThat(db.count("reminders")).isEqualTo(0)
+        db.execSQL("INSERT INTO reminders (id, vaultItemId, type, enabled, nextDueDate, notifyBeforeDays, createdAt, updatedAt) VALUES ('r1','i1','PASSWORD_REVIEW',1,99,7,1,1)")
+        db.execSQL("INSERT INTO backup_metadata (id, createdAt, sizeBytes, itemCount, formatVersion, schemaVersion, verified, event) VALUES ('b1',1,10,1,1,3,1,'CREATED')")
+        db.execSQL("INSERT INTO diagnostic_events (id, occurredAt, appVersion, schemaVersion, module, code) VALUES ('d1',1,'1.0',3,'test','E_TEST')")
+        assertThat(db.count("reminders")).isEqualTo(1)
+        db.close()
+    }
+
+    @Test
+    fun migrate1To3_fullChainPreservesData() {
+        helper.createDatabase(dbName, 1).apply { seedV1(this); close() }
+        val db = helper.runMigrationsAndValidate(dbName, 3, true, *MigrationRegistry.ALL)
+        assertThat(db.count("vault_items")).isEqualTo(1)
+        assertThat(db.count("credential_fields")).isEqualTo(1)
+        assertThat(db.count("credential_history")).isEqualTo(1)
+        assertThat(db.count("tags")).isEqualTo(1)
+        assertThat(db.count("reminders")).isEqualTo(0)
+        db.query("SELECT title FROM vault_items WHERE id='i1'").use { c -> c.moveToFirst(); assertThat(c.getString(0)).isEqualTo("SBI") }
+        db.close()
+    }
+
+    @Test
     fun schema1_createsAndReopensAtCurrentVersion() {
         helper.createDatabase(dbName, 1).apply {
             execSQL(

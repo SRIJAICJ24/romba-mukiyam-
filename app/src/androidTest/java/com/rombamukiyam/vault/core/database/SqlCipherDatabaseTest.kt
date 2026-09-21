@@ -59,9 +59,11 @@ class SqlCipherDatabaseTest {
         factory.open(key, file).use { db -> db.familyProfileDao().insert(profile("p1")) }
         val bytes = file.readBytes()
         val text = String(bytes, Charsets.ISO_8859_1)
+        // Long, structured strings only: a 3-letter value can appear in random ciphertext by chance.
         assertThat(text).doesNotContain("SQLite format 3")
-        assertThat(text).doesNotContain("Dad")
+        assertThat(text).doesNotContain("CREATE TABLE")
         assertThat(text).doesNotContain("family_profiles")
+        assertThat(text).doesNotContain("credential_fields")
     }
 
     @Test

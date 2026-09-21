@@ -27,6 +27,7 @@ import com.rombamukiyam.vault.domain.model.VaultItem
 import com.rombamukiyam.vault.domain.model.VaultItemDraft
 import com.rombamukiyam.vault.domain.model.VaultItemSummary
 import com.rombamukiyam.vault.domain.repository.CategoryCountSummary
+import com.rombamukiyam.vault.domain.repository.ReminderRepository
 import com.rombamukiyam.vault.domain.repository.VaultRepository
 import java.util.UUID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -40,6 +41,7 @@ import kotlinx.coroutines.flow.map
 class VaultRepositoryImpl(
     private val session: VaultSession,
     private val clock: Clock,
+    private val reminders: ReminderRepository? = null,
 ) : VaultRepository {
 
     private val dao: VaultItemDao get() = session.database().vaultItemDao()
@@ -99,7 +101,9 @@ class VaultRepositoryImpl(
             dao.insertItemWithFields(entity, fields, event(id, HistoryEventType.CREDENTIAL_CREATED, null, now))
             writeTags(id, draft.tags, now)
             recordDigests(id, draft.fields, fields, now)
+            reminders?.syncForItem(id, draft.category, draft.passwordLastChangedAt, draft.reviewIntervalDays, draft.fields)
         }
+        reminders?.republish()
         return id
     }
 
@@ -113,7 +117,9 @@ class VaultRepositoryImpl(
             dao.updateItemWithFields(entity, fields, event(id, HistoryEventType.CREDENTIAL_UPDATED, null, now))
             writeTags(id, draft.tags, now)
             recordDigests(id, draft.fields, fields, now)
+            reminders?.syncForItem(id, draft.category, draft.passwordLastChangedAt, draft.reviewIntervalDays, draft.fields)
         }
+        reminders?.republish()
     }
 
     /**
@@ -154,17 +160,20 @@ class VaultRepositoryImpl(
     override suspend fun moveToTrash(id: String) {
         val now = clock.nowMillis()
         dao.moveToTrash(id, now, event(id, HistoryEventType.MOVED_TO_TRASH, null, now))
+        reminders?.republish() // trashed items drop out of the schedule
     }
 
     override suspend fun restore(id: String) {
         val now = clock.nowMillis()
         dao.restoreFromTrash(id, now, event(id, HistoryEventType.RESTORED, null, now))
+        reminders?.republish()
     }
 
     override suspend fun deletePermanently(id: String) {
-        // Cascades remove fields, history and tag links for this item.
+        // Cascades remove fields, history, digests, policy, reminders and tag links for this item.
         dao.deletePermanently(id)
         session.database().tagDao().deleteUnusedTags()
+        reminders?.republish()
     }
 
     override suspend fun purgeTrashOlderThan(days: Int): Int {
@@ -188,7 +197,16 @@ class VaultRepositoryImpl(
             dao.insertHistory(event(itemId, HistoryEventType.PASSWORD_CHANGED, null, now))
             pw.retireCurrent(fieldId)
             pw.insertHistory(PasswordHistoryEntity(UUID.randomUUID().toString(), itemId, fieldId, digest, current = true, changedAt = now))
+            val item = dao.getById(itemId)
+            if (item?.reviewIntervalDays != null) {
+                val fieldDrafts = fields.map { f ->
+                    val type = FieldType.fromName(f.fieldType)
+                    FieldDraft(f.id, type, f.label, if (type == FieldType.EXPIRY_DATE) session.decryptField(f.encryptedValue, f.id) else "")
+                }
+                reminders?.syncForItem(itemId, VaultCategory.fromName(item.category), changedAt, item.reviewIntervalDays, fieldDrafts)
+            }
         }
+        reminders?.republish()
     }
 
     // ------------------------------------------------------------ password tools
@@ -240,7 +258,17 @@ class VaultRepositoryImpl(
         session.database().runInTransactionSuspend {
             dao.setPasswordLastChanged(itemId, reviewedAt, now)
             dao.insertHistory(event(itemId, HistoryEventType.CREDENTIAL_REVIEWED, null, now))
+            val item = dao.getById(itemId)
+            if (item?.reviewIntervalDays != null) {
+                // Keep the expiry reminder untouched: pass the stored expiry field back through the sync.
+                val fieldDrafts = dao.getFields(itemId).map { f ->
+                    val type = FieldType.fromName(f.fieldType)
+                    FieldDraft(f.id, type, f.label, if (type == FieldType.EXPIRY_DATE) session.decryptField(f.encryptedValue, f.id) else "")
+                }
+                reminders?.syncForItem(itemId, VaultCategory.fromName(item.category), reviewedAt, item.reviewIntervalDays, fieldDrafts)
+            }
         }
+        reminders?.republish()
     }
 
     // ------------------------------------------------------------ helpers

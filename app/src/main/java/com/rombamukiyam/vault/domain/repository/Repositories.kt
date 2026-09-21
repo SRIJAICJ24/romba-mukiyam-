@@ -2,6 +2,9 @@ package com.rombamukiyam.vault.domain.repository
 
 import com.rombamukiyam.vault.domain.model.AvatarType
 import com.rombamukiyam.vault.domain.model.FamilyProfile
+import com.rombamukiyam.vault.domain.model.FieldDraft
+import com.rombamukiyam.vault.domain.model.Reminder
+import com.rombamukiyam.vault.domain.model.ReminderType
 import com.rombamukiyam.vault.domain.model.HistoryEvent
 import com.rombamukiyam.vault.domain.model.HistoryEventType
 import com.rombamukiyam.vault.domain.model.PasswordDigest
@@ -63,4 +66,25 @@ interface VaultRepository {
     suspend fun deletePolicy(itemId: String)
     /** Decrypted primary-password values for local health analysis only; never leaves the process. */
     suspend fun primaryPasswordsForHealth(): List<Triple<String, String, String>>
+}
+
+interface ReminderRepository {
+    fun observeAll(): Flow<List<Reminder>>
+    suspend fun forItem(itemId: String): List<Reminder>
+    suspend fun upsert(reminder: Reminder)
+    suspend fun delete(itemId: String, type: ReminderType)
+    suspend fun setEnabled(id: String, enabled: Boolean)
+    suspend fun markDone(id: String)
+    suspend fun syncForItem(itemId: String, category: VaultCategory, passwordLastChangedAt: Long?, reviewIntervalDays: Int?, fields: List<FieldDraft>)
+    suspend fun republish()
+}
+
+data class BackupRecord(val id: String, val createdAt: Long, val displayName: String?, val sizeBytes: Long, val itemCount: Int, val verified: Boolean, val event: String)
+
+data class DiagnosticEvent(val id: String, val occurredAt: Long, val appVersion: String, val schemaVersion: Int, val module: String, val code: String, val exceptionClass: String?)
+
+interface DiagnosticsRepository {
+    fun observe(): Flow<List<DiagnosticEvent>>
+    suspend fun record(module: String, code: String, exception: Throwable?)
+    suspend fun clear()
 }

@@ -8,6 +8,7 @@ import com.rombamukiyam.vault.core.security.SessionState
 import com.rombamukiyam.vault.core.security.VaultSession
 import com.rombamukiyam.vault.domain.repository.AppSettings
 import com.rombamukiyam.vault.domain.repository.SettingsRepository
+import com.rombamukiyam.vault.domain.usecase.OnUnlockMaintenanceUseCase
 import com.rombamukiyam.vault.domain.usecase.VaultExistsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -33,10 +34,18 @@ class AppViewModel @Inject constructor(
     private val settingsRepo: SettingsRepository,
     private val vaultExists: VaultExistsUseCase,
     private val autoLock: AutoLockController,
+    private val maintenance: OnUnlockMaintenanceUseCase,
     rootDetector: RootDetector,
 ) : ViewModel() {
 
     private val rootSuspect = rootDetector.looksCompromised()
+
+    init {
+        // Housekeeping (trash purge, reminder schedule) runs each time the vault becomes unlocked.
+        viewModelScope.launch {
+            session.state.collect { if (it is SessionState.Unlocked) maintenance() }
+        }
+    }
 
     val state: StateFlow<AppUiState> = combine(session.state, settingsRepo.settings, autoLock.inBackground) { sessionState, settings, background ->
         val exists = vaultExists()
