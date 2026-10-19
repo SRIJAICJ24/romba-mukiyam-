@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 360" width="1280" height="360" role="img" aria-labelledby="t d">
+  <title id="t">Romba Mukiyam</title>
+  <desc id="d">Your family's private vault. Fully offline Android password and credential manager.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0F1428"/>
+      <stop offset="0.55" stop-color="#14213D"/>
+      <stop offset="1" stop-color="#2B2D6B"/>
+    </linearGradient>
+    <linearGradient id="shield" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8F80E8"/>
+      <stop offset="1" stop-color="#6D5DD3"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#6D5DD3" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#6D5DD3" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1280" height="360" rx="28" fill="url(#bg)"/>
+  <circle cx="250" cy="180" r="210" fill="url(#glow)"/>
+  <g opacity="0.07" stroke="#ffffff" stroke-width="1">
+    <path d="M0 60H1280M0 120H1280M0 180H1280M0 240H1280M0 300H1280"/>
+    <path d="M160 0V360M320 0V360M480 0V360M640 0V360M800 0V360M960 0V360M1120 0V360"/>
+  </g>
+
+  <!-- shield + keyhole (same artwork as the app icon) -->
+  <g transform="translate(110 40) scale(2.6)">
+    <path fill="url(#shield)" d="M54,22 L78,31 V52 C78,66 68,78 54,84 C40,78 30,66 30,52 V31 Z"/>
+    <path fill="#ffffff" fill-opacity="0.18" d="M54,27 L73.5,34.4 V52 C73.5,63.5 65.5,73.7 54,79 Z"/>
+    <path fill="#ffffff" d="M54,42 a7,7 0 1,0 0.01,0 Z"/>
+    <path fill="#ffffff" d="M50.5,52 L57.5,52 L60,66 L48,66 Z"/>
+  </g>
+
+  <text x="470" y="170" fill="#ffffff" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="92" font-weight="700" letter-spacing="1">Romba Mukiyam</text>
+  <text x="474" y="228" fill="#C9C3F5" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="38" font-weight="400">Your family's private vault.</text>
+
+  <g font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="600">
+    <rect x="474" y="262" width="168" height="44" rx="22" fill="#2E9E6A" fill-opacity="0.22" stroke="#5FD39B"/>
+    <text x="558" y="291" text-anchor="middle" fill="#8FE3BC">100% offline</text>
+    <rect x="656" y="262" width="214" height="44" rx="22" fill="#6D5DD3" fill-opacity="0.25" stroke="#8F80E8"/>
+    <text x="763" y="291" text-anchor="middle" fill="#D9D4FA">AES-256 · Argon2id</text>
+    <rect x="884" y="262" width="196" height="44" rx="22" fill="#D48A0B" fill-opacity="0.20" stroke="#F2B75A"/>
+    <text x="982" y="291" text-anchor="middle" fill="#FFD99A">No INTERNET perm.</text>
+  </g>
+</svg>
